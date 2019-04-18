@@ -23,6 +23,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javax.swing.JOptionPane;
 
@@ -43,9 +45,11 @@ public class BobsBurgerPOS extends Application {
     //username: max
     //password: password
     // global DB connection
-    Label logo;
+    Label logo = new Label("BOB'S BURGER");
 
-    Stage currentStage; // always set this to current stage being displayed.
+    Stage rootStage;
+    
+    //Stage currentStage; // always set this to current stage being displayed.
 
     Connection conn;
 
@@ -57,11 +61,20 @@ public class BobsBurgerPOS extends Application {
     Button loginButton = new Button("LOG IN"); //global login button for reuse, add handler in constructor
 
     Button homeButton = new Button("HOME"); //global login button for reuse, add handler in constructor
+    
+    Button openPOS = new Button("POS"); //global openPOS button for reuse, add handler in constructor
+    
+    Button openReporting = new Button("Managment Reporting"); //global openReporting button for reuse, add handler in constructor
+    
+    // navbar
+    HBox navbar = new HBox();
+    
 
     // ----Login window----
-    Stage loginStage;
+    //Stage loginStage;
     VBox loginVBox;
     VBox loginInnerVBox;
+    Scene loginScene;
 
     Label loginLabel;
     TextField username;
@@ -76,21 +89,27 @@ public class BobsBurgerPOS extends Application {
     Label mainPOSTitle = new Label("");
     Label mainPOSAdmin = new Label("");
     HBox userInfo = new HBox();
+    VBox topBanner = new VBox();
 
     // ----Main POS Window window----
-    Stage menuStage;
+    //Stage menuStage;
+    
+    Scene mainPOSScene;
 
     VBox mainPOSVBox;
 
     // ----Manger Reporting window----
-    Stage reportingStage;
+    //Stage reportingStage;
     HBox reportingHBox1;
     VBox mainReportsVBox;
+    Scene reportingScene;
 
     // ----POS window----
-    Stage POSStage;
+    //Stage POSStage;
     HBox POSHBox1;
     VBox POSVBox;
+    
+    Scene POSScene;
 
     //constructor
     public BobsBurgerPOS() {
@@ -137,20 +156,45 @@ public class BobsBurgerPOS extends Application {
             @Override
             public void handle(ActionEvent event) {
 
-                menuStage.show();
-                //urrentStage.hide();
-                
+                showMainPOS();
             }
         });
+        
+        
+        //attach showManagerReporting handler
+        openReporting.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+                
+                showManagerReporting();
+                
+
+            }
+        });
+
+        //attach showPOS handler 
+        openPOS.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+
+                
+                showPOS();
+
+            }
+        });
+        
+        
 
     }
 
     @Override
     public void start(Stage primaryStage) {
 
+        rootStage = primaryStage;
         // app starts logged out
         // must be stated outside of login function otherwise login screen would always imply logout action
-        logo = new Label("BOB'S BURGER");
         loginLabel = new Label("LOGIN");
 
         username = new TextField("");
@@ -169,15 +213,14 @@ public class BobsBurgerPOS extends Application {
     public void showLogin() {
 
         // show home button only if logged in
-        if (loggedIn) {
+    
+        loginInnerVBox = new VBox(logo, loginLabel, username, password, loginButton, exitButton);
 
-            loginInnerVBox = new VBox(homeButton, logo, loginLabel, username, password, loginButton, exitButton);
+       
 
-        } else {
+    
 
-            loginInnerVBox = new VBox(logo, loginLabel, username, password, loginButton, exitButton);
-
-        }
+    
 
         loginInnerVBox.setPrefWidth(50);
         loginInnerVBox.setAlignment(Pos.CENTER);
@@ -188,14 +231,14 @@ public class BobsBurgerPOS extends Application {
         loginVBox.setAlignment(Pos.CENTER);
         loginVBox.setSpacing(10);
 
-        Scene scene = new Scene(loginVBox, 600, 250);
+        loginScene = new Scene(loginVBox, 600, 250);
 
-        loginStage = new Stage();
+       
 
-        loginStage.setTitle("Bob's Burger POS - Login");
-        loginStage.setScene(scene);
-        loginStage.show();
-        currentStage = loginStage; //set current stage to login stage
+        rootStage.setTitle("Bob's Burger POS - Login");
+        rootStage.setScene(loginScene);
+        rootStage.show();
+       
 
     }
 
@@ -203,53 +246,29 @@ public class BobsBurgerPOS extends Application {
     public void showMainPOS() {
 
  
-        Button openPOS = new Button("POS");
-        Button openReporting = new Button("Managment Reporting");
+        
         
         Label mainPOSlabel = new Label("Main POS Screen");
 
-        mainPOSVBox = new VBox(showLoginBanner(), mainPOSlabel, openPOS, openReporting, logoutButton);
+        mainPOSVBox = new VBox(showLoginBanner(), mainPOSlabel);
         //mainPOSVBox.setAlignment(Pos.CENTER);
         mainPOSVBox.setSpacing(20);
 
-        Scene scene = new Scene(mainPOSVBox, 600, 250);
+        mainPOSScene = new Scene(mainPOSVBox, 600, 250);
 
-        menuStage = new Stage();
+        
 
-        menuStage.setTitle("Bob's Burger POS");
-        menuStage.setScene(scene);
+        rootStage.setTitle("Bob's Burger POS");
+        rootStage.setScene(mainPOSScene);
 
-        //attach event handler to openReporting button here because button only used once
-        openReporting.setOnAction(new EventHandler<ActionEvent>() {
 
-            @Override
-            public void handle(ActionEvent event) {
-                currentStage.hide();
-                showManagerReporting();
 
-            }
-        });
 
-        //attach event handler to openPOS button here because button only used once
-        openPOS.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-
-                currentStage.hide();
-                showPOS();
-
-            }
-        });
-
-        menuStage.show();
-
-        currentStage = menuStage; // set current stage to Menu Stage
 
     }
 
     // sets userInfo HBOX returns HBOX container init of login banner
-    public HBox showLoginBanner() {
+    public VBox showLoginBanner() {
 
         //if (loggedIn) {
 
@@ -266,11 +285,20 @@ public class BobsBurgerPOS extends Application {
 
             }
 
-            userInfo = new HBox(homeButton, mainPOSUsername, mainPOSTitle, mainPOSAdmin);
+            userInfo = new HBox(mainPOSUsername, mainPOSTitle, mainPOSAdmin);
             userInfo.setSpacing(20);
             userInfo.setAlignment(Pos.CENTER);
+            
+            navbar = new HBox(homeButton,openPOS,openReporting,logoutButton);
+            navbar.setSpacing(20);
+            navbar.setAlignment(Pos.CENTER);
+            
+            logo.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+            
+            topBanner = new VBox(userInfo,logo,navbar);
+            topBanner.setAlignment(Pos.CENTER);
 
-            return userInfo;
+            return topBanner;
 
        // } else {
 
@@ -284,16 +312,15 @@ public class BobsBurgerPOS extends Application {
 
         POSVBox = new VBox(showLoginBanner());
 
-        Scene scene = new Scene(POSVBox, 600, 250);
+        
+        POSScene = new Scene(POSVBox, 800, 600);
 
-        POSStage = new Stage();
+        //POSStage = new Stage();
 
-        POSStage.setTitle("ORDER ENTRY");
-        POSStage.setScene(scene);
+        rootStage.setTitle("ORDER ENTRY");
+        rootStage.setScene(POSScene);
 
-        POSStage.show();
 
-        currentStage = POSStage;
 
     }
 
@@ -307,15 +334,13 @@ public class BobsBurgerPOS extends Application {
 
             reportingHBox1 = new HBox(l);
             mainReportsVBox = new VBox(showLoginBanner(),reportingHBox1);
-            reportingStage = new Stage();
 
             //scene can be temp and stored locally
-            Scene scene = new Scene(mainReportsVBox, 600, 250);
-            reportingStage.setScene(scene);
-            reportingStage.show();
-            currentStage = reportingStage;
+            reportingScene = new Scene(mainReportsVBox, 600, 250);
+            rootStage.setTitle("MANAGER REPORTING");
+            rootStage.setScene(reportingScene);
 
-            // else prompt user back to login screen
+
         } else {
 
             showLogin();
@@ -368,8 +393,7 @@ public class BobsBurgerPOS extends Application {
                     //show main POS window
                     showMainPOS();
 
-                    //hide login screen
-                    loginStage.hide();
+ 
 
                 } else {
 
@@ -432,12 +456,10 @@ public class BobsBurgerPOS extends Application {
                 loggedInTitle = "";
                 admin = false;
 
-                //hide previous currentStage screen saved in this local stage variable
-                currentStage.hide();
-
-                //show login again
-                loginStage.show();
-
+   
+                // show login screen
+                showLogin();
+ 
             }
         });
 
