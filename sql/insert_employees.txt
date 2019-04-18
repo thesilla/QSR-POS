@@ -1,0 +1,16 @@
+insert into employees values(
+    1,
+    'Max',
+    'Gillman',
+    'mgillman',
+    'password',
+    'Manager'
+),
+(
+    2,
+    'John',
+    'Doe',
+    'jdoe',
+    'password',
+    'Cashier'
+);
