@@ -5,6 +5,7 @@
  */
 package csc335finalproject;
 
+import static java.lang.System.out;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,16 +13,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -110,6 +113,14 @@ public class BobsBurgerPOS extends Application {
     VBox POSVBox;
     
     Scene POSScene;
+    
+    
+    
+    ListView burgerMenu = new ListView();
+    // Create the Lists for the ListViews
+    ObservableList<String> burgerList;
+    
+    
 
     //constructor
     public BobsBurgerPOS() {
@@ -470,7 +481,7 @@ public class BobsBurgerPOS extends Application {
         try {
 
             Class.forName("org.apache.derby.jdbc.ClientDriver");
-            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bobsburger", "max", "password");
+            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bobsburger");//, "max", "password"); dont need this created without username password
             //JOptionPane.showMessageDialog(null, "connection success!", "Connection", JOptionPane.OK_OPTION);
 
         } catch (Exception e) {
@@ -480,8 +491,59 @@ public class BobsBurgerPOS extends Application {
         }
 
     }
+    
+    
+    public VBox showBurgerMenu(){
+        
+        
+        
+        
+        try {
+                   connect();
+
+                    burgerList = FXCollections.<String>observableArrayList();
+                    
+                    String sqlStatement = "SELECT * FROM menu where item_type = 'Burger'";
+                    Statement stmt = conn.createStatement();
+                    ResultSet result = stmt.executeQuery(sqlStatement);
+                    
+                    
+                    //works
+                    
+                    while (result.next()) {
+                        
+                        burgerList.add(result.getString(1));
+                        
+                        //System.out.println(result.getString(1));
+                        //System.out.println(result.getString(2));
+                        //System.out.println(result.getString(3));
+
+                    }
+                 
+
+                } catch (Exception e) {
+
+                    JOptionPane.showMessageDialog(null, "Error: " + e, "Connection Failed", JOptionPane.OK_OPTION);
+
+                }
+        
+                burgerMenu.addAll(burgerList);
+        
+        
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
 
     public static void main(String[] args) {
+  
         launch(args);
     }
 
