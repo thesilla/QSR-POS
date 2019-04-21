@@ -417,16 +417,20 @@ public class BobsBurgerPOS extends Application {
         subtotalAmount = 0;
         subTotal.setText("$0.00");
         
-        VBox hb_burgers = new VBox(showBurgerMenu(), addBurgerButton);
+        Label burgersl = new Label("Burgers");
+        VBox hb_burgers = new VBox(burgersl,showBurgerMenu(), addBurgerButton);
         hb_burgers.setAlignment(Pos.CENTER);
 
-        VBox hb_fries = new VBox(showFriesMenu(), addFriesButton);
+        Label friesl = new Label("Fries");
+        VBox hb_fries = new VBox(friesl,showFriesMenu(), addFriesButton);
         hb_fries.setAlignment(Pos.CENTER);
 
-        VBox hb_drinks = new VBox(showDrinksMenu(), addDrinksButton);
+        Label drinksl = new Label("Drinks");
+        VBox hb_drinks = new VBox(drinksl, showDrinksMenu(), addDrinksButton);
         hb_drinks.setAlignment(Pos.CENTER);
 
-        VBox hb_combos = new VBox(showComboMenu(), addOptionsButton);
+        Label combosl = new Label("Combos");
+        VBox hb_combos = new VBox(combosl,showComboMenu(), addOptionsButton);
         hb_combos.setAlignment(Pos.CENTER);
 
         POSHBox1 = new HBox(hb_burgers, hb_fries, hb_drinks, hb_combos);
@@ -605,7 +609,7 @@ public class BobsBurgerPOS extends Application {
             connect();
 
             burgerMenu = new ListView();
-            burgerMenu.getItems().add("<<None Selected>>");
+            //burgerMenu.getItems().add("<<None Selected>>");
 
             //burgerList = FXCollections.<String>observableArrayList();
             String sqlStatement = "SELECT * FROM menu where item_type = 'Burger'";
@@ -640,7 +644,7 @@ public class BobsBurgerPOS extends Application {
             connect();
 
             friesMenu = new ListView();
-            friesMenu.getItems().add("<<None Selected>>");
+            //friesMenu.getItems().add("<<None Selected>>");
 
             //burgerList = FXCollections.<String>observableArrayList();
             String sqlStatement = "SELECT * FROM menu where item_type = 'Fries'";
@@ -675,7 +679,7 @@ public class BobsBurgerPOS extends Application {
             connect();
 
             drinksMenu = new ListView();
-            drinksMenu.getItems().add("<<None Selected>>");
+            //drinksMenu.getItems().add("<<None Selected>>");
 
             //burgerList = FXCollections.<String>observableArrayList();
             String sqlStatement = "SELECT * FROM menu where item_type = 'Drinks'";
@@ -707,11 +711,11 @@ public class BobsBurgerPOS extends Application {
     public ListView showComboMenu() {
 
         comboMenu = new ListView();
-        comboMenu.getItems().add("<<None Selected>>");
-        comboMenu.getItems().add("Combo 1: Hamburger Combo - Large");
-        comboMenu.getItems().add("Combo 2: Cheeseburger Combo - Large");
-        comboMenu.getItems().add("Combo 3: Hamburger Combo - Small");
-        comboMenu.getItems().add("Combo 4: Veggie Burger Combo - Large");
+        //comboMenu.getItems().add("<<None Selected>>");
+        comboMenu.getItems().add("Combo 1: Hamburger Combo - Large\t 8.99");
+        comboMenu.getItems().add("Combo 2: Cheeseburger Combo - Large\t 9.99");
+        comboMenu.getItems().add("Combo 3: Hamburger Combo - Small\t 6.99");
+        comboMenu.getItems().add("Combo 4: Veggie Burger Combo - Large\t 8.99");
 
         comboMenu.setPrefWidth(350);
         comboMenu.setPrefHeight(250);
