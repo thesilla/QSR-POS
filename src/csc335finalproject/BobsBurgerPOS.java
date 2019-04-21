@@ -54,7 +54,7 @@ public class BobsBurgerPOS extends Application {
     //password: password
     // global DB connection
     
-    LocalDate date = java.time.LocalDate.now();
+    
     
     Label logo = new Label("BOB'S BURGER");
 
