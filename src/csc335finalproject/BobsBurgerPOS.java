@@ -54,7 +54,8 @@ public class BobsBurgerPOS extends Application {
     //password: password
     // global DB connection
     
-    
+    String date = "" + java.time.LocalDate.now();
+    Label dateLabel = new Label(date);
     
     Label logo = new Label("BOB'S BURGER");
 
@@ -365,7 +366,7 @@ public class BobsBurgerPOS extends Application {
         //mainPOSVBox.setAlignment(Pos.CENTER);
         mainPOSVBox.setSpacing(20);
 
-        mainPOSScene = new Scene(mainPOSVBox, 600, 250);
+        mainPOSScene = new Scene(mainPOSVBox, 1200, 600);
 
         rootStage.setTitle("Bob's Burger POS");
         rootStage.setScene(mainPOSScene);
@@ -374,8 +375,10 @@ public class BobsBurgerPOS extends Application {
 
     // sets userInfo HBOX returns HBOX container init of login banner
     public VBox showLoginBanner() {
-
+        
+        
         //if (loggedIn) {
+        dateLabel.setText("Date: " + date);
         mainPOSUsername = new Label("Welcome, " + loggedInUsername);
         mainPOSTitle = new Label("Role: " + loggedInTitle);
 
@@ -389,7 +392,7 @@ public class BobsBurgerPOS extends Application {
 
         }
 
-        userInfo = new HBox(mainPOSUsername, mainPOSTitle, mainPOSAdmin);
+        userInfo = new HBox(mainPOSUsername, mainPOSTitle, mainPOSAdmin, dateLabel);
         userInfo.setSpacing(20);
         userInfo.setAlignment(Pos.CENTER);
 
@@ -414,26 +417,28 @@ public class BobsBurgerPOS extends Application {
         subtotalAmount = 0;
         subTotal.setText("$0.00");
         
-        HBox hb_burgers = new HBox(showBurgerMenu(), addBurgerButton);
-        //hb_burgers.setAlignment(Pos.CENTER);
+        VBox hb_burgers = new VBox(showBurgerMenu(), addBurgerButton);
+        hb_burgers.setAlignment(Pos.CENTER);
 
-        HBox hb_fries = new HBox(showFriesMenu(), addFriesButton);
-        //hb_fries.setAlignment(Pos.CENTER);
+        VBox hb_fries = new VBox(showFriesMenu(), addFriesButton);
+        hb_fries.setAlignment(Pos.CENTER);
 
-        HBox hb_drinks = new HBox(showDrinksMenu(), addDrinksButton);
-        //hb_drinks.setAlignment(Pos.CENTER);
+        VBox hb_drinks = new VBox(showDrinksMenu(), addDrinksButton);
+        hb_drinks.setAlignment(Pos.CENTER);
 
-        HBox hb_combos = new HBox(showComboMenu(), addOptionsButton);
-        //hb_combos.setAlignment(Pos.CENTER);
+        VBox hb_combos = new VBox(showComboMenu(), addOptionsButton);
+        hb_combos.setAlignment(Pos.CENTER);
 
-        POSVBox = new VBox(hb_burgers, hb_fries, hb_drinks, hb_combos);
-        POSVBox.setAlignment(Pos.CENTER);
+        POSHBox1 = new HBox(hb_burgers, hb_fries, hb_drinks, hb_combos);
+        //POSVBox = new VBox(hb_burgers, hb_fries, hb_drinks, hb_combos);
+        POSHBox1.setAlignment(Pos.CENTER);
 
-        rootPOSHBox = new HBox(POSVBox, showTransactionComponent());
-
-        VBox rootPOSVBox = new VBox(showLoginBanner(), rootPOSHBox);
+        //rootPOSHBox = new HBox(POSVBox, showTransactionComponent());
+       
+        
+        VBox rootPOSVBox = new VBox(showLoginBanner(), POSHBox1, showTransactionComponent());
         rootPOSVBox.setAlignment(Pos.CENTER);
-        POSScene = new Scene(rootPOSVBox, 1100, 1100);
+        POSScene = new Scene(rootPOSVBox, 1200, 600);
 
         //POSStage = new Stage();
         rootStage.setTitle("ORDER ENTRY");
@@ -453,7 +458,7 @@ public class BobsBurgerPOS extends Application {
             mainReportsVBox = new VBox(showLoginBanner(), reportingHBox1);
 
             //scene can be temp and stored locally
-            reportingScene = new Scene(mainReportsVBox, 600, 250);
+            reportingScene = new Scene(mainReportsVBox, 1200, 600);
             rootStage.setTitle("MANAGER REPORTING");
             rootStage.setScene(reportingScene);
 
@@ -623,6 +628,8 @@ public class BobsBurgerPOS extends Application {
 
         }
 
+        burgerMenu.setPrefHeight(250);
+        burgerMenu.setPrefWidth(350);
         return burgerMenu;
 
     }
@@ -656,6 +663,8 @@ public class BobsBurgerPOS extends Application {
 
         }
 
+        friesMenu.setPrefHeight(250);
+        friesMenu.setPrefWidth(350);
         return friesMenu;
 
     }
@@ -689,6 +698,8 @@ public class BobsBurgerPOS extends Application {
 
         }
 
+        drinksMenu.setPrefWidth(350);
+        drinksMenu.setPrefHeight(250);
         return drinksMenu;
 
     }
@@ -702,6 +713,8 @@ public class BobsBurgerPOS extends Application {
         comboMenu.getItems().add("Combo 3: Hamburger Combo - Small");
         comboMenu.getItems().add("Combo 4: Veggie Burger Combo - Large");
 
+        comboMenu.setPrefWidth(350);
+        comboMenu.setPrefHeight(250);
         return comboMenu;
 
     }
@@ -710,6 +723,7 @@ public class BobsBurgerPOS extends Application {
 
         transListView = new ListView();
 
+        transListView.setPrefHeight(250);
         transDetails = new VBox(transListView, subTotal, completeTransactionButton,removeItemButton);
         return transDetails;
 
