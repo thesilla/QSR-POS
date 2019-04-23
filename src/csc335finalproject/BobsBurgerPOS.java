@@ -952,8 +952,8 @@ public class BobsBurgerPOS extends Application {
         try {
 
             Class.forName("org.apache.derby.jdbc.ClientDriver");
-            //conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bobsburger", "max", "password");//, "max", "password"); dont need this created without username password
-            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bb");
+            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bobsburger", "max", "password");//, "max", "password"); dont need this created without username password
+            //conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bb");
             //JOptionPane.showMessageDialog(null, "connection success!", "Connection", JOptionPane.OK_OPTION);
 
         } catch (Exception e) {
