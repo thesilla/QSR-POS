@@ -24,6 +24,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
@@ -456,6 +457,10 @@ public class BobsBurgerPOS extends Application {
         //if admin (manager) allow access to this window
         if (admin) {
 
+            
+            DatePicker dp = new DatePicker();
+            HBox reportingControls = new HBox();
+            
             Label l = new Label("Manager Reporting");
 
             reportingHBox1 = new HBox(l);
@@ -465,6 +470,21 @@ public class BobsBurgerPOS extends Application {
             reportingScene = new Scene(mainReportsVBox, 1200, 600);
             rootStage.setTitle("MANAGER REPORTING");
             rootStage.setScene(reportingScene);
+            
+            //report will run when any new date is picked
+            dp.setOnAction((new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+
+                // TODO
+                  String date = dp.getValue().toString();
+                //runTransactionReport(date);
+                
+            }
+        }));
+            
+            
 
         } else {
 
@@ -473,6 +493,73 @@ public class BobsBurgerPOS extends Application {
         }
 
     }
+    
+    //takes a string argument and uses it to pull transactions by date
+    // TODO - MOST CODE IN HERE NOT VALID, DELETE
+    public void runTransactionReport(String date){
+        
+        PreparedStatement ps = null;
+        ResultSet result = null;
+        // connect to DB
+        connect();
+
+        try {
+
+            // use prepared statements to execute and avoid outside tampering
+            String sqlStatement = "SELECT title, count(username) as numrecords FROM employees where username = ? and password = ? group by title";
+            
+
+            ps = conn.prepareStatement(sqlStatement);
+            ps.setString(1, XX);
+            ps.setString(2, XX);
+
+            result = ps.executeQuery();
+
+            //works
+            while (result.next()) {
+
+ 
+
+            }
+
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(null, "Error: " + e, "Connection Failed", JOptionPane.OK_OPTION);
+
+            // after execution, close out of everything
+        } finally {
+
+            // close results set
+            if (result != null) {
+                try {
+                    result.close();
+                } catch (SQLException e) {
+
+                }
+            }
+            // close prepared statement
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+
+                }
+            }
+
+            // close db connection
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+
+                }
+            }
+
+        }
+        
+        
+    }
+    
 
     // takes username and password as strings
     // logs user in if valid credentials entered
@@ -856,7 +943,7 @@ public class BobsBurgerPOS extends Application {
 
                 friesArray.add(result.getString("fries_id") + " - " + result.getString("fries_desc") + " " + result.getString("fries_size"));
                 
-                friesID = Integer.parseInt(result.getString("fries_id"));
+                
 
             }
 
@@ -871,7 +958,7 @@ public class BobsBurgerPOS extends Application {
             while (result.next()) {
 
                 drinksArray.add(result.getString("drink_id") + " - " + result.getString("drink_desc") + " " + result.getString("drink_size"));
-                drinkID = Integer.parseInt(result.getString("drink_id"));
+                
             }
             
             
@@ -882,6 +969,12 @@ public class BobsBurgerPOS extends Application {
             public void handle(ActionEvent event) {
 
                 // TODO
+                
+                //friesID = Integer.parseInt(result.getString("fries_id"));
+                friesID = Integer.parseInt(comboFriesComboBox.getSelectionModel().getSelectedItem().toString().substring(0,4).replaceAll("[^0-9]", ""));
+                drinkID = Integer.parseInt(comboDrinksComboBox.getSelectionModel().getSelectedItem().toString().substring(0,4).replaceAll("[^0-9]", ""));
+                
+                //drinkID = Integer.parseInt(result.getString("drink_id"));
                 addComboToTransaction(newCombo, friesID, drinkID);
                 
                 
