@@ -28,7 +28,11 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TablePosition;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -54,10 +58,9 @@ public class BobsBurgerPOS extends Application {
     //username: max
     //password: password
     // global DB connection
-    
     String date = "" + java.time.LocalDate.now();
     Label dateLabel = new Label(date);
-    
+
     Label logo = new Label("BOB'S BURGER");
 
     Stage rootStage;
@@ -114,6 +117,13 @@ public class BobsBurgerPOS extends Application {
     VBox mainReportsVBox;
     Scene reportingScene;
 
+    TableView<Transaction> allOrdersTable;
+    TableView<Order> orderDrilldownTable;
+    TableView<Count> countsTable;
+    DatePicker dp;
+    HBox reportingControls;
+    VBox countsReportVBox;
+
     // ----POS window----
     //Stage POSStage;
     HBox POSHBox1;
@@ -151,10 +161,10 @@ public class BobsBurgerPOS extends Application {
     ComboBox<String> comboFriesComboBox = new ComboBox<String>();
     ComboBox<String> comboDrinksComboBox = new ComboBox<String>();
     VBox combosVBox;
-    
+
     // for removing item from cart
     Button removeItemButton = new Button("Remove Item");
-    
+
     int drinkID = -1;
     int friesID = -1;
 
@@ -165,6 +175,8 @@ public class BobsBurgerPOS extends Application {
     float subtotalAmount = 0;
 
     Button completeTransactionButton = new Button("PLACE ORDER");
+
+    String returnString = "";
 
     //constructor
     public BobsBurgerPOS() {
@@ -299,10 +311,8 @@ public class BobsBurgerPOS extends Application {
 
             }
         });
-        
-        
-        
-                     //attach removeItem handler 
+
+        //attach removeItem handler 
         removeItemButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -367,7 +377,7 @@ public class BobsBurgerPOS extends Application {
         //mainPOSVBox.setAlignment(Pos.CENTER);
         mainPOSVBox.setSpacing(20);
 
-        mainPOSScene = new Scene(mainPOSVBox, 1200, 600);
+        mainPOSScene = new Scene(mainPOSVBox, 1400, 600);
 
         rootStage.setTitle("Bob's Burger POS");
         rootStage.setScene(mainPOSScene);
@@ -376,8 +386,7 @@ public class BobsBurgerPOS extends Application {
 
     // sets userInfo HBOX returns HBOX container init of login banner
     public VBox showLoginBanner() {
-        
-        
+
         //if (loggedIn) {
         dateLabel.setText("Date: " + date);
         mainPOSUsername = new Label("Welcome, " + loggedInUsername);
@@ -417,13 +426,13 @@ public class BobsBurgerPOS extends Application {
 
         subtotalAmount = 0;
         subTotal.setText("$0.00");
-        
+
         Label burgersl = new Label("Burgers");
-        VBox hb_burgers = new VBox(burgersl,showBurgerMenu(), addBurgerButton);
+        VBox hb_burgers = new VBox(burgersl, showBurgerMenu(), addBurgerButton);
         hb_burgers.setAlignment(Pos.CENTER);
 
         Label friesl = new Label("Fries");
-        VBox hb_fries = new VBox(friesl,showFriesMenu(), addFriesButton);
+        VBox hb_fries = new VBox(friesl, showFriesMenu(), addFriesButton);
         hb_fries.setAlignment(Pos.CENTER);
 
         Label drinksl = new Label("Drinks");
@@ -431,19 +440,18 @@ public class BobsBurgerPOS extends Application {
         hb_drinks.setAlignment(Pos.CENTER);
 
         Label combosl = new Label("Combos");
-        VBox hb_combos = new VBox(combosl,showComboMenu(), addOptionsButton);
+        VBox hb_combos = new VBox(combosl, showComboMenu(), addOptionsButton);
         hb_combos.setAlignment(Pos.CENTER);
 
         POSHBox1 = new HBox(hb_burgers, hb_fries, hb_drinks, hb_combos);
         //POSVBox = new VBox(hb_burgers, hb_fries, hb_drinks, hb_combos);
         POSHBox1.setAlignment(Pos.CENTER);
+        POSHBox1.setSpacing(20);
 
         //rootPOSHBox = new HBox(POSVBox, showTransactionComponent());
-       
-        
         VBox rootPOSVBox = new VBox(showLoginBanner(), POSHBox1, showTransactionComponent());
         rootPOSVBox.setAlignment(Pos.CENTER);
-        POSScene = new Scene(rootPOSVBox, 1200, 600);
+        POSScene = new Scene(rootPOSVBox, 1400, 600);
 
         //POSStage = new Stage();
         rootStage.setTitle("ORDER ENTRY");
@@ -457,34 +465,156 @@ public class BobsBurgerPOS extends Application {
         //if admin (manager) allow access to this window
         if (admin) {
 
+            //datepicker
+            dp = new DatePicker();
             
-            DatePicker dp = new DatePicker();
-            HBox reportingControls = new HBox();
+            Button orderDetailsButton = new Button("Order Details");
             
-            Label l = new Label("Manager Reporting");
+            //reporting controls, at top of app
+            reportingControls = new HBox(dp,orderDetailsButton);
+            reportingControls.setAlignment(Pos.CENTER);
 
-            reportingHBox1 = new HBox(l);
-            mainReportsVBox = new VBox(showLoginBanner(), reportingHBox1);
+            //all orders table and vbox
+            Label listOrdersLabel = new Label("List Transactions");
+            Label listOrdersTotalLabel = new Label("");
+            VBox allOrdersVBox;
+            allOrdersTable = new TableView();
+
+            TableColumn<Transaction, Transaction> column1 = new TableColumn<>("Order #");
+            column1.setCellValueFactory(new PropertyValueFactory<>("orderNumber"));
+
+            TableColumn<Transaction, Transaction> column2 = new TableColumn<>("Date");
+            column2.setCellValueFactory(new PropertyValueFactory<>("date"));
+
+            TableColumn<Transaction, Transaction> column3 = new TableColumn<>("Taker");
+            column3.setCellValueFactory(new PropertyValueFactory<>("taker"));
+
+            TableColumn<Transaction, Transaction> column4 = new TableColumn<>("Total Paid");
+            column4.setCellValueFactory(new PropertyValueFactory<>("total"));
+
+            allOrdersTable.getColumns().add(column1);
+            allOrdersTable.getColumns().add(column2);
+            allOrdersTable.getColumns().add(column3);
+            allOrdersTable.getColumns().add(column4);
+            
+            allOrdersVBox = new VBox(listOrdersLabel,allOrdersTable,listOrdersTotalLabel);
+            
+            
+            // drilldown of individual orders
+            Label drilldownLabel = new Label("Order Drilldown");
+            VBox drilldownVBox;
+            Label orderTotal = new Label("");
+            
+            
+            orderDrilldownTable = new TableView();
+            
+            TableColumn<Order, Order> c1 = new TableColumn<>("Order #");
+            c1.setCellValueFactory(new PropertyValueFactory<>("orderNumber"));
+
+            TableColumn<Order, Order> c2 = new TableColumn<>("Item ID");
+            c2.setCellValueFactory(new PropertyValueFactory<>("menuID"));
+
+            TableColumn<Order, Order> c3 = new TableColumn<>("Item Desc");
+            c3.setCellValueFactory(new PropertyValueFactory<>("itemDesc"));
+
+            TableColumn<Order, Order> c4 = new TableColumn<>("Item Size");
+            c4.setCellValueFactory(new PropertyValueFactory<>("itemSize"));
+            
+            TableColumn<Order, Order> c5 = new TableColumn<>("Unit Price");
+            c5.setCellValueFactory(new PropertyValueFactory<>("itemPrice"));
+            
+            TableColumn<Order, Order> c6 = new TableColumn<>("Part of Combo?");
+            c6.setCellValueFactory(new PropertyValueFactory<>("combo"));
+
+            orderDrilldownTable.getColumns().add(c1);
+            orderDrilldownTable.getColumns().add(c2);
+            orderDrilldownTable.getColumns().add(c3);
+            orderDrilldownTable.getColumns().add(c4);
+            orderDrilldownTable.getColumns().add(c5);
+            orderDrilldownTable.getColumns().add(c6);
+            
+            drilldownVBox = new VBox(drilldownLabel,orderDrilldownTable,orderTotal);
+           
+            
+            //item counts report table
+            countsTable = new TableView();
+            TableColumn<Count, Count> co1 = new TableColumn<>("Item ID");
+            co1.setCellValueFactory(new PropertyValueFactory<>("itemID"));
+
+            TableColumn<Count, Count> co2 = new TableColumn<>("Item Desc");
+            co2.setCellValueFactory(new PropertyValueFactory<>("itemDesc"));
+
+            TableColumn<Count, Count> co3 = new TableColumn<>("Item Size");
+            co3.setCellValueFactory(new PropertyValueFactory<>("itemSize"));
+
+            TableColumn<Count, Count> co4 = new TableColumn<>("Total Sold");
+            co4.setCellValueFactory(new PropertyValueFactory<>("count"));
+
+
+            countsTable.getColumns().add(co1);
+            countsTable.getColumns().add(co2);
+            countsTable.getColumns().add(co3);
+            countsTable.getColumns().add(co4);
+            
+            Label countsReportLabel = new Label("Product Quantity Sold");
+            countsReportVBox = new VBox(countsReportLabel,countsTable);
+            
+
+            //Label l = new Label("Manager Reporting");
+
+            // all report containers shown horizontally
+            reportingHBox1 = new HBox(allOrdersVBox, drilldownVBox,countsReportVBox);
+            
+            reportingHBox1.setAlignment(Pos.CENTER);
+            reportingHBox1.setSpacing(20);
+
+            
+            
+            mainReportsVBox = new VBox(showLoginBanner(), reportingControls, reportingHBox1);
+            mainReportsVBox.setSpacing(20);
 
             //scene can be temp and stored locally
-            reportingScene = new Scene(mainReportsVBox, 1200, 600);
+            reportingScene = new Scene(mainReportsVBox, 1400, 600);
             rootStage.setTitle("MANAGER REPORTING");
             rootStage.setScene(reportingScene);
             
+            // run counts report automatically
+            runCountsReport();
+
             //report will run when any new date is picked
             dp.setOnAction((new EventHandler<ActionEvent>() {
 
-            @Override
-            public void handle(ActionEvent event) {
+                @Override
+                public void handle(ActionEvent event) {
 
-                // TODO
-                  String date = dp.getValue().toString();
-                //runTransactionReport(date);
-                
-            }
-        }));
+                    // clear current table first
+                    allOrdersTable.getItems().clear();
+                    
+                    String date = dp.getValue().toString();
+                    runTransactionReport(date);
+                    
+
+                }
+            }));
             
-            
+            // delete when done
+            orderDetailsButton.setOnAction((new EventHandler<ActionEvent>() {
+
+                @Override
+                public void handle(ActionEvent event) {
+
+                    // clear current table first
+                    orderDrilldownTable.getItems().clear();
+                    
+                    String order_number = allOrdersTable.getSelectionModel().getSelectedItem().orderNumber;
+                    
+                    orderTotal.setText(allOrdersTable.getSelectionModel().getSelectedItem().total);
+  
+                    runOrderDrilldownReport(order_number);
+
+                }
+            }));
+       
 
         } else {
 
@@ -494,10 +624,8 @@ public class BobsBurgerPOS extends Application {
 
     }
     
-    //takes a string argument and uses it to pull transactions by date
-    // TODO - MOST CODE IN HERE NOT VALID, DELETE
-    public void runTransactionReport(String date){
-        
+    
+    public void runCountsReport(){
         PreparedStatement ps = null;
         ResultSet result = null;
         // connect to DB
@@ -505,20 +633,24 @@ public class BobsBurgerPOS extends Application {
 
         try {
 
+    
             // use prepared statements to execute and avoid outside tampering
-            String sqlStatement = "SELECT title, count(username) as numrecords FROM employees where username = ? and password = ? group by title";
-            
+            String sqlStatement = "select t.menuid, m.item_desc, m.item_size, count(t.menuid) as total  from transactions t inner join menu m on m.id = t.menuid group by t.menuid, m.item_desc, m.item_size";
 
             ps = conn.prepareStatement(sqlStatement);
-            ps.setString(1, XX);
-            ps.setString(2, XX);
+            
 
             result = ps.executeQuery();
+            
 
             //works
             while (result.next()) {
-
- 
+                
+                //create order object
+                Count count = new Count(result.getString("menuid"),result.getString("item_desc"),result.getString("item_size"),result.getString("total"));
+                
+      
+                countsTable.getItems().add(count);
 
             }
 
@@ -560,6 +692,147 @@ public class BobsBurgerPOS extends Application {
         
     }
     
+    
+    public void runOrderDrilldownReport(String order_number){
+        PreparedStatement ps = null;
+        ResultSet result = null;
+        // connect to DB
+        connect();
+
+        try {
+
+    
+            // use prepared statements to execute and avoid outside tampering
+            String sqlStatement = "select t.transactionid, t.menuid,mxc.item_desc, mxc.item_size, mxc.item_price, t.combo from TRANSACTIONS t left join (select * from menu union select c.comboid as id, c.combo_group as item_type, c.combo_group || ': ' || c.entree_desc || ' / ' || c.fries_desc|| ' / ' || c.drink_desc as item_desc, entree_size as item_size, c.combo_price as item_price from combos c) as mxc on t.menuid = mxc.id where transactionid = ?";
+
+            
+            
+            ps = conn.prepareStatement(sqlStatement);
+            ps.setString(1, order_number);
+
+
+            result = ps.executeQuery();
+            
+
+            //works
+            while (result.next()) {
+                
+                //create order object
+                Order order = new Order(result.getString("transactionid"),result.getString("menuid"),result.getString("item_desc"),result.getString("item_size"),result.getString("item_price"),result.getString("combo"));
+                
+                //if part of combo, unit price should be 0
+                if(result.getString("combo").equalsIgnoreCase("YES")){
+                    
+                    order.setItemPrice("0.00");
+                }
+
+                orderDrilldownTable.getItems().add(order);
+
+            }
+
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(null, "Error: " + e, "Connection Failed", JOptionPane.OK_OPTION);
+
+            // after execution, close out of everything
+        } finally {
+
+            // close results set
+            if (result != null) {
+                try {
+                    result.close();
+                } catch (SQLException e) {
+
+                }
+            }
+            // close prepared statement
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+
+                }
+            }
+
+            // close db connection
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+
+                }
+            }
+
+        }
+        
+    }
+    
+
+    //takes a string argument and uses it to pull transactions by date
+    // TODO - MOST CODE IN HERE NOT VALID, DELETE
+    public void runTransactionReport(String date) {
+
+        PreparedStatement ps = null;
+        ResultSet result = null;
+        // connect to DB
+        connect();
+
+        try {
+
+            //tableView.getItems().add("");
+            //tableView.getItems().add("");
+            // use prepared statements to execute and avoid outside tampering
+            String sqlStatement = "select distinct t.transactionid as order_number, t.date, t.taker, t.total as order_total from TRANSACTIONS t left join (select * from menu union select c.comboid as id, c.combo_group as item_type, c.combo_group || ': ' || c.entree_desc || ' / ' || c.fries_desc|| ' / ' || c.drink_desc as item_desc, entree_size as item_size, c.combo_price as item_price from combos c) as mxc on t.menuid = mxc.id where t.date = ?";
+
+            ps = conn.prepareStatement(sqlStatement);
+            ps.setString(1, date);
+
+
+            result = ps.executeQuery();
+
+            //works
+            while (result.next()) {
+
+                allOrdersTable.getItems().add(new Transaction(result.getString("order_number"),result.getString("date"),result.getString("taker"),result.getString("order_total")));
+
+            }
+
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(null, "Error: " + e, "Connection Failed", JOptionPane.OK_OPTION);
+
+            // after execution, close out of everything
+        } finally {
+
+            // close results set
+            if (result != null) {
+                try {
+                    result.close();
+                } catch (SQLException e) {
+
+                }
+            }
+            // close prepared statement
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+
+                }
+            }
+
+            // close db connection
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+
+                }
+            }
+
+        }
+
+    }
 
     // takes username and password as strings
     // logs user in if valid credentials entered
@@ -679,7 +952,8 @@ public class BobsBurgerPOS extends Application {
         try {
 
             Class.forName("org.apache.derby.jdbc.ClientDriver");
-            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bobsburger", "max", "password");//, "max", "password"); dont need this created without username password
+            //conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bobsburger", "max", "password");//, "max", "password"); dont need this created without username password
+            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bb");
             //JOptionPane.showMessageDialog(null, "connection success!", "Connection", JOptionPane.OK_OPTION);
 
         } catch (Exception e) {
@@ -815,12 +1089,12 @@ public class BobsBurgerPOS extends Application {
         transListView = new ListView();
 
         transListView.setPrefHeight(250);
-        transDetails = new VBox(transListView, subTotal, completeTransactionButton,removeItemButton);
+        transDetails = new VBox(transListView, subTotal, completeTransactionButton, removeItemButton);
         return transDetails;
 
     }
 
-    public void showTotal() {
+    public String showTotal() {
 
         subtotalAmount = 0;
 
@@ -828,10 +1102,11 @@ public class BobsBurgerPOS extends Application {
 
             double item_price = Double.parseDouble(item.toString().substring(50).replaceAll("[^0-9.]", ""));
             subtotalAmount += item_price;
+            returnString = String.format("%.02f", subtotalAmount);
             subTotal.setText(String.format("%.02f", subtotalAmount));
 
         });
-
+        return returnString;
     }
 
     // creates transaction record in transactions table of database
@@ -847,6 +1122,7 @@ public class BobsBurgerPOS extends Application {
 
         transListView.getItems().forEach((item) -> {
 
+            String combo = "NO";
             PreparedStatement ps = null;
             ResultSet result = null;
             // connect to DB
@@ -854,10 +1130,13 @@ public class BobsBurgerPOS extends Application {
 
             int id = Integer.parseInt(item.toString().substring(0, 4).replaceAll("[^0-9]", ""));
 
+            // if price at end is 0.00 its a combo item
+            String price = item.toString().substring(15).replaceAll("[^0-9.]", "");
+
             try {
 
                 // use prepared statements to execute and avoid outside tampering
-                String sqlStatement = "INSERT INTO transactions values (?,?,?,?,?)";
+                String sqlStatement = "INSERT INTO transactions values (?,?,?,?,?,?,?)";
 
                 ps = conn.prepareStatement(sqlStatement);
                 ps.setString(1, Integer.toString(transactionID));
@@ -865,10 +1144,23 @@ public class BobsBurgerPOS extends Application {
                 ps.setString(3, Integer.toString(customerID));
                 ps.setString(4, "" + java.time.LocalDate.now());
                 ps.setString(5, loggedInUsername);
+
+                // if price at end is 0.00 its a combo item
+                if (price.equalsIgnoreCase("0.00")) {
+
+                    combo = "YES";
+
+                } else {
+
+                    combo = "NO";
+                }
+
+                ps.setString(6, combo);
+
+                ps.setString(7, showTotal());
                 ps.executeUpdate();
-                showTotal();
-                
-                
+                //showTotal();
+
             } catch (Exception e) {
 
                 JOptionPane.showMessageDialog(null, "Error: " + e, "Connection Failed", JOptionPane.OK_OPTION);
@@ -904,7 +1196,7 @@ public class BobsBurgerPOS extends Application {
 
             }
         });
-        JOptionPane.showMessageDialog(null, "Your Order Number is: " + transactionID + ";\nOrder Total: " + subtotalAmount, "Transaction Complete!",  JOptionPane.OK_OPTION);
+        JOptionPane.showMessageDialog(null, "Your Order Number is: " + transactionID + ";\nOrder Total: " + subtotalAmount, "Transaction Complete!", JOptionPane.OK_OPTION);
         showPOS();
 
     }
@@ -912,8 +1204,6 @@ public class BobsBurgerPOS extends Application {
     //takes a combo group, and returns corresponding menu options to UI
     public void showComboSelection(String combo) {
 
-
-        
         PreparedStatement ps = null;
         ResultSet result = null;
         // connect to DB
@@ -942,8 +1232,6 @@ public class BobsBurgerPOS extends Application {
             while (result.next()) {
 
                 friesArray.add(result.getString("fries_id") + " - " + result.getString("fries_desc") + " " + result.getString("fries_size"));
-                
-                
 
             }
 
@@ -958,28 +1246,25 @@ public class BobsBurgerPOS extends Application {
             while (result.next()) {
 
                 drinksArray.add(result.getString("drink_id") + " - " + result.getString("drink_desc") + " " + result.getString("drink_size"));
-                
-            }
-            
-            
-                   // set add combo button handler here since its actions are dynamic
-        addComboButton.setOnAction(new EventHandler<ActionEvent>() {
 
-            @Override
-            public void handle(ActionEvent event) {
+            }
+
+            // set add combo button handler here since its actions are dynamic
+            addComboButton.setOnAction(new EventHandler<ActionEvent>() {
+
+                @Override
+                public void handle(ActionEvent event) {
 
                 // TODO
-                
-                //friesID = Integer.parseInt(result.getString("fries_id"));
-                friesID = Integer.parseInt(comboFriesComboBox.getSelectionModel().getSelectedItem().toString().substring(0,4).replaceAll("[^0-9]", ""));
-                drinkID = Integer.parseInt(comboDrinksComboBox.getSelectionModel().getSelectedItem().toString().substring(0,4).replaceAll("[^0-9]", ""));
-                
-                //drinkID = Integer.parseInt(result.getString("drink_id"));
-                addComboToTransaction(newCombo, friesID, drinkID);
-                
-                
-            }
-        });
+                    //friesID = Integer.parseInt(result.getString("fries_id"));
+                    friesID = Integer.parseInt(comboFriesComboBox.getSelectionModel().getSelectedItem().toString().substring(0, 4).replaceAll("[^0-9]", ""));
+                    drinkID = Integer.parseInt(comboDrinksComboBox.getSelectionModel().getSelectedItem().toString().substring(0, 4).replaceAll("[^0-9]", ""));
+
+                    //drinkID = Integer.parseInt(result.getString("drink_id"));
+                    addComboToTransaction(newCombo, friesID, drinkID);
+
+                }
+            });
 
         } catch (Exception e) {
 
@@ -990,8 +1275,6 @@ public class BobsBurgerPOS extends Application {
         comboFriesComboBox.setItems(friesArray);
         comboDrinksComboBox.setItems(drinksArray);
 
- 
-
         combosVBox = new VBox(comboSelectionLabel, comboFriesComboBox, comboDrinksComboBox, addComboButton);
 
         comboSelectionScene = new Scene(combosVBox, 600, 600);
@@ -1000,18 +1283,14 @@ public class BobsBurgerPOS extends Application {
         comboSelectionWindow.show();
 
     }
-    
+
     // takes parameters, returns exact combo product id line
-    public void addComboToTransaction(String combo_group, int fries_id, int drink_id){
-        
-        
-        
+    public void addComboToTransaction(String combo_group, int fries_id, int drink_id) {
+
         PreparedStatement ps = null;
         ResultSet result = null;
         // connect to DB
         connect();
-
-      
 
         try {
 
@@ -1023,16 +1302,22 @@ public class BobsBurgerPOS extends Application {
             ps.setString(3, Integer.toString(drink_id));
             result = ps.executeQuery();
 
+            // add combo item at combo cost
+            // add individual lines that make up combo at zero cost FOR TRACKING PURPOSES
             while (result.next()) {
 
                 // add item to transactions listview
-               transListView.getItems().add(String.format("%-20s%-20s%-20s%-20s\n", result.getString("comboid"), result.getString("combo_group")+ " - " + result.getString("entree_desc"), result.getString("entree_size"), result.getString("combo_price")));
-               
+                transListView.getItems().add(String.format("%-20s%-20s%-20s%-20s\n", result.getString("comboid"), result.getString("combo_group") + " - " + result.getString("entree_desc"), result.getString("entree_size"), result.getString("combo_price")));
 
+               // add individual items that make up combo at zero cost
+                //id desc size price
+                transListView.getItems().add(String.format("%-20s%-20s%-20s%-20s\n", result.getString("entree_id"), result.getString("entree_desc"), result.getString("entree_size"), "0.00"));
+                transListView.getItems().add(String.format("%-20s%-20s%-20s%-20s\n", result.getString("fries_id"), result.getString("fries_desc"), result.getString("fries_size"), "0.00"));
+                transListView.getItems().add(String.format("%-20s%-20s%-20s%-20s\n", result.getString("drink_id"), result.getString("drink_desc"), result.getString("drink_size"), "0.00"));
             }
-            
+
             showTotal();
-            
+
             comboSelectionWindow.close();
         } catch (Exception e) {
 
@@ -1040,13 +1325,7 @@ public class BobsBurgerPOS extends Application {
 
         }
 
-    
-
-        
-        
-        
     }
-    
 
     public static void main(String[] args) {
 
@@ -1057,31 +1336,31 @@ public class BobsBurgerPOS extends Application {
 
 /*
 
-        try {
-                    //"org.apache.derby.jdbc.EmbeddedDriver"
-                    //"org.apache.derby.jdbc.ClientDriver"
-                    Class.forName("org.apache.derby.jdbc.ClientDriver");
-                    conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bobsburger", "max", "password");
-                    JOptionPane.showMessageDialog(null, "connection success!", "Connection", JOptionPane.OK_OPTION);
+ try {
+ //"org.apache.derby.jdbc.EmbeddedDriver"
+ //"org.apache.derby.jdbc.ClientDriver"
+ Class.forName("org.apache.derby.jdbc.ClientDriver");
+ conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bobsburger", "max", "password");
+ JOptionPane.showMessageDialog(null, "connection success!", "Connection", JOptionPane.OK_OPTION);
 
                     
-                    String sqlStatement = "SELECT * FROM combos";
-                    Statement stmt = conn.createStatement();
-                    ResultSet result = stmt.executeQuery(sqlStatement);
+ String sqlStatement = "SELECT * FROM combos";
+ Statement stmt = conn.createStatement();
+ ResultSet result = stmt.executeQuery(sqlStatement);
                     
                     
-                    //works
+ //works
                     
-                    while (result.next()) {
-                        System.out.println(result.getString(1));
-                        System.out.println(result.getString(2));
-                        System.out.println(result.getString(3));
+ while (result.next()) {
+ System.out.println(result.getString(1));
+ System.out.println(result.getString(2));
+ System.out.println(result.getString(3));
 
-                    }
+ }
                  
 
-                } catch (Exception e) {
+ } catch (Exception e) {
 
-                    JOptionPane.showMessageDialog(null, "Error: " + e, "Connection Failed", JOptionPane.OK_OPTION);
+ JOptionPane.showMessageDialog(null, "Error: " + e, "Connection Failed", JOptionPane.OK_OPTION);
 
-                }*/
+ }*/
