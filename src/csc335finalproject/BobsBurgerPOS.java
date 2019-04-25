@@ -5,6 +5,8 @@
  */
 package csc335finalproject;
 
+import javafx.scene.image.Image;
+import java.io.FileInputStream;
 import static java.lang.System.out;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -33,6 +35,7 @@ import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -175,14 +178,27 @@ public class BobsBurgerPOS extends Application {
     float subtotalAmount = 0;
 
     Button completeTransactionButton = new Button("PLACE ORDER");
+    
 
     String returnString = "";
+    
+    FileInputStream input ;
+    
+    
+    Image image;
+    ImageView imageView;
+      
 
     //constructor
-    public BobsBurgerPOS() {
+    public BobsBurgerPOS()   {
 
         // add handlers upon initialization
+        
+        
+        
+        
         // attach logout handler
+        logoutButton.setStyle("-fx-font: 18 arial;");
         logoutButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -196,6 +212,7 @@ public class BobsBurgerPOS extends Application {
         });
 
         // attach exit handler
+        exitButton.setStyle("-fx-font: 18 arial;");
         exitButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -208,6 +225,7 @@ public class BobsBurgerPOS extends Application {
         });
 
         // attach login handler
+        loginButton.setStyle("-fx-font: 18 arial;");
         loginButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -218,6 +236,7 @@ public class BobsBurgerPOS extends Application {
             }
         });
 
+        homeButton.setStyle("-fx-font: 18 arial;");
         homeButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -228,6 +247,7 @@ public class BobsBurgerPOS extends Application {
         });
 
         //attach showManagerReporting handler
+        openReporting.setStyle("-fx-font: 18 arial;");
         openReporting.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -239,6 +259,7 @@ public class BobsBurgerPOS extends Application {
         });
 
         //attach showPOS handler 
+        openPOS.setStyle("-fx-font: 18 arial;");
         openPOS.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -256,9 +277,12 @@ public class BobsBurgerPOS extends Application {
             public void handle(ActionEvent event) {
 
                 // change to actual functionality
-                System.out.println(burgerMenu.getSelectionModel().getSelectedItem());
-                transListView.getItems().add(burgerMenu.getSelectionModel().getSelectedItem());
-                showTotal();
+                //if object is selected
+                if(burgerMenu.getSelectionModel().getSelectedItem()!=null){
+                    transListView.getItems().add(burgerMenu.getSelectionModel().getSelectedItem());
+                    showTotal();
+                }
+                
 
             }
         });
@@ -269,9 +293,13 @@ public class BobsBurgerPOS extends Application {
             @Override
             public void handle(ActionEvent event) {
 
-                //System.out.println(friesMenu.getSelectionModel().getSelectedItem());
-                transListView.getItems().add(friesMenu.getSelectionModel().getSelectedItem());
-                showTotal();
+                //if object is selected
+                if(friesMenu.getSelectionModel().getSelectedItem()!=null){
+                    transListView.getItems().add(friesMenu.getSelectionModel().getSelectedItem());
+                    showTotal();
+                }
+                
+                
 
             }
         });
@@ -282,9 +310,13 @@ public class BobsBurgerPOS extends Application {
             @Override
             public void handle(ActionEvent event) {
 
-                //System.out.println(drinksMenu.getSelectionModel().getSelectedItem());
-                transListView.getItems().add(drinksMenu.getSelectionModel().getSelectedItem());
-                showTotal();
+                //if object is selected
+                if(drinksMenu.getSelectionModel().getSelectedItem()!=null){
+                    
+                    transListView.getItems().add(drinksMenu.getSelectionModel().getSelectedItem());
+                    showTotal();
+                    
+                }
 
             }
         });
@@ -318,16 +350,20 @@ public class BobsBurgerPOS extends Application {
             @Override
             public void handle(ActionEvent event) {
 
+                
                 transListView.getItems().remove(transListView.getSelectionModel().getSelectedIndex());
                 showTotal();
             }
         });
 
+        completeTransactionButton.setStyle("-fx-font: 28 arial;");
     }
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws Exception{
 
+        
+        
         rootStage = primaryStage;
         // app starts logged out
         // must be stated outside of login function otherwise login screen would always imply logout action
@@ -349,6 +385,7 @@ public class BobsBurgerPOS extends Application {
     public void showLogin() {
 
         // show home button only if logged in
+        logo.setStyle("-fx-font: 35 arial;");
         loginInnerVBox = new VBox(logo, loginLabel, username, password, loginButton, exitButton);
 
         loginInnerVBox.setPrefWidth(50);
@@ -371,9 +408,16 @@ public class BobsBurgerPOS extends Application {
     // displays the main POS menu screen
     public void showMainPOS() {
 
+        
+        //C:\Users\Max Gillman\Documents\NetBeansProjects\CSC335FinalProject\src\csc335finalproject
+        //input = new FileInputStream("C:\\Users\\Max Gillman\\Documents\\NetBeansProjects\\CSC335FinalProject\\src\\csc335finalproject\\burger.png");
+        //Image image = new Image(input);
+        //Image image = new Image("C:\\Users\\Max Gillman\\Documents\\NetBeansProjects\\CSC335FinalProject\\src\\csc335finalproject\\burger.png");
+        //ImageView imageView = new ImageView();
+        //imageView.setImage(image);
         Label mainPOSlabel = new Label("Main POS Screen");
 
-        mainPOSVBox = new VBox(showLoginBanner(), mainPOSlabel);
+        mainPOSVBox = new VBox(showLoginBanner(), mainPOSlabel); //,imageView);
         //mainPOSVBox.setAlignment(Pos.CENTER);
         mainPOSVBox.setSpacing(20);
 
@@ -389,9 +433,11 @@ public class BobsBurgerPOS extends Application {
 
         //if (loggedIn) {
         dateLabel.setText("Date: " + date);
+        dateLabel.setStyle("-fx-font: 12 arial;");
         mainPOSUsername = new Label("Welcome, " + loggedInUsername);
+        mainPOSUsername.setStyle("-fx-font: 12 arial;");
         mainPOSTitle = new Label("Role: " + loggedInTitle);
-
+        mainPOSTitle.setStyle("-fx-font: 12 arial;");
         if (admin) {
 
             mainPOSAdmin = new Label("Admin Access: YES");
@@ -401,7 +447,7 @@ public class BobsBurgerPOS extends Application {
             mainPOSAdmin = new Label("Admin Access: NO");
 
         }
-
+        mainPOSAdmin.setStyle("-fx-font: 12 arial;");
         userInfo = new HBox(mainPOSUsername, mainPOSTitle, mainPOSAdmin, dateLabel);
         userInfo.setSpacing(20);
         userInfo.setAlignment(Pos.CENTER);
@@ -428,18 +474,22 @@ public class BobsBurgerPOS extends Application {
         subTotal.setText("$0.00");
 
         Label burgersl = new Label("Burgers");
+        burgersl.setStyle("-fx-font: 16 arial;");
         VBox hb_burgers = new VBox(burgersl, showBurgerMenu(), addBurgerButton);
         hb_burgers.setAlignment(Pos.CENTER);
 
         Label friesl = new Label("Fries");
+        friesl.setStyle("-fx-font: 16 arial;");
         VBox hb_fries = new VBox(friesl, showFriesMenu(), addFriesButton);
         hb_fries.setAlignment(Pos.CENTER);
 
         Label drinksl = new Label("Drinks");
+        drinksl.setStyle("-fx-font: 16 arial;");
         VBox hb_drinks = new VBox(drinksl, showDrinksMenu(), addDrinksButton);
         hb_drinks.setAlignment(Pos.CENTER);
 
         Label combosl = new Label("Combos");
+        combosl.setStyle("-fx-font: 16 arial;");
         VBox hb_combos = new VBox(combosl, showComboMenu(), addOptionsButton);
         hb_combos.setAlignment(Pos.CENTER);
 
@@ -451,6 +501,7 @@ public class BobsBurgerPOS extends Application {
         //rootPOSHBox = new HBox(POSVBox, showTransactionComponent());
         VBox rootPOSVBox = new VBox(showLoginBanner(), POSHBox1, showTransactionComponent());
         rootPOSVBox.setAlignment(Pos.CENTER);
+        rootPOSVBox.setSpacing(15);
         POSScene = new Scene(rootPOSVBox, 1400, 600);
 
         //POSStage = new Stage();
@@ -471,12 +522,13 @@ public class BobsBurgerPOS extends Application {
             Button orderDetailsButton = new Button("Order Details");
             
             //reporting controls, at top of app
-            reportingControls = new HBox(dp,orderDetailsButton);
+            reportingControls = new HBox(dp);
             reportingControls.setAlignment(Pos.CENTER);
 
             //all orders table and vbox
             Label listOrdersLabel = new Label("List Transactions");
-            Label listOrdersTotalLabel = new Label("");
+            listOrdersLabel.setStyle("-fx-font: 16 arial;");
+            
             VBox allOrdersVBox;
             allOrdersTable = new TableView();
 
@@ -497,13 +549,16 @@ public class BobsBurgerPOS extends Application {
             allOrdersTable.getColumns().add(column3);
             allOrdersTable.getColumns().add(column4);
             
-            allOrdersVBox = new VBox(listOrdersLabel,allOrdersTable,listOrdersTotalLabel);
-            
+            allOrdersVBox = new VBox(listOrdersLabel,allOrdersTable,orderDetailsButton);
+            allOrdersVBox.setAlignment(Pos.CENTER);
             
             // drilldown of individual orders
             Label drilldownLabel = new Label("Order Drilldown");
+            
+            drilldownLabel.setStyle("-fx-font: 16 arial;");
             VBox drilldownVBox;
             Label orderTotal = new Label("");
+            orderTotal.setStyle("-fx-font: 20 arial;");
             
             
             orderDrilldownTable = new TableView();
@@ -534,6 +589,7 @@ public class BobsBurgerPOS extends Application {
             orderDrilldownTable.getColumns().add(c6);
             
             drilldownVBox = new VBox(drilldownLabel,orderDrilldownTable,orderTotal);
+            drilldownVBox.setAlignment(Pos.CENTER);
            
             
             //item counts report table
@@ -557,7 +613,10 @@ public class BobsBurgerPOS extends Application {
             countsTable.getColumns().add(co4);
             
             Label countsReportLabel = new Label("Product Quantity Sold");
+            Label spaceEaterLabel = new Label(" ");
+            countsReportLabel.setStyle("-fx-font: 16 arial;");
             countsReportVBox = new VBox(countsReportLabel,countsTable);
+            countsReportVBox.setAlignment(Pos.CENTER);
             
 
             //Label l = new Label("Manager Reporting");
@@ -1089,7 +1148,11 @@ public class BobsBurgerPOS extends Application {
         transListView = new ListView();
 
         transListView.setPrefHeight(250);
-        transDetails = new VBox(transListView, subTotal, completeTransactionButton, removeItemButton);
+        subTotal.setStyle("-fx-font: 20 arial;");
+        
+        transDetails = new VBox(transListView,removeItemButton, subTotal, completeTransactionButton );
+        transDetails.setAlignment(Pos.CENTER);
+        transDetails.setSpacing(15);
         return transDetails;
 
     }
