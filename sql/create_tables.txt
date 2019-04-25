@@ -1,0 +1,61 @@
+CREATE TABLE menu (
+    ID int NOT NULL,
+    item_type varchar(255),
+    item_desc varchar(255),
+    item_size varchar(255),
+    item_price varchar(255),
+    PRIMARY KEY (ID)
+);
+
+
+CREATE TABLE combos (
+    comboID int NOT NULL,
+    combo_group varchar(255),
+    
+    entree_id int,
+    entree_desc varchar(255),
+    entree_size varchar(255),
+
+    fries_id int,
+    fries_desc varchar(255),
+    fries_size varchar(255),
+
+    drink_id int,
+    drink_desc varchar(255),
+    drink_size varchar(255),
+    combo_price varchar(255),
+    PRIMARY KEY (comboID)
+);
+
+
+CREATE TABLE employees(
+    employeeID int NOT NULL,
+    first_name varchar(255),
+    last_name varchar(255),
+    username varchar(255),
+    password varchar(255),
+    title varchar(255),
+    PRIMARY KEY (employeeID)
+);
+
+CREATE TABLE transactions(
+    transactionID int NOT NULL,
+    menuID int,
+    customerID int,
+    date date,
+    taker varchar(255),
+    combo varchar(255),
+    total varchar(255)
+	
+);
+
+CREATE TABLE customers(
+    customerID int NOT NULL,
+    first_name varchar(255),
+    last_name varchar(255),
+    PRIMARY KEY (customerID)
+);
+
+
+
+

@@ -1,0 +1,19 @@
+select t.transactionid, t.menuid, c.comboid, case when  m.item_price, c.combo_price from transactions t 
+left join menu m on t.menuid = m.id
+left join combos c on t.menuid = c.comboid
+
+
+
+/*
+select t.transactionid, t.menuid from transactions t 
+left join menu m on t.menuid = m.id
+left join combos c on t.menuid = c.comboid
+*/
+
+
+/* UNIONS COMBOS INTO MENU */
+select t.transactionid, t.menuid,mxc.item_desc, mxc.item_size, mxc.item_price  from TRANSACTIONS t
+left join (select * from menu
+union
+select c.comboid as id, c.combo_group as item_type, c.combo_group || ': ' || c.entree_desc || ' / ' || c.fries_desc|| ' / ' || c.drink_desc as item_desc, entree_size as item_size, c.combo_price as item_price from combos c)
+as mxc on t.menuid = mxc.id

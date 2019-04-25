@@ -5,9 +5,11 @@
  */
 package csc335finalproject;
 
+import java.io.File;
 import javafx.scene.image.Image;
 import java.io.FileInputStream;
 import static java.lang.System.out;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -63,6 +65,8 @@ public class BobsBurgerPOS extends Application {
     // global DB connection
     String date = "" + java.time.LocalDate.now();
     Label dateLabel = new Label(date);
+    
+    HBox spaceEatingHBox = new HBox();
 
     Label logo = new Label("BOB'S BURGER");
 
@@ -166,7 +170,7 @@ public class BobsBurgerPOS extends Application {
     VBox combosVBox;
 
     // for removing item from cart
-    Button removeItemButton = new Button("Remove Item");
+    Button removeItemButton = new Button("Remove Selected Item");
 
     int drinkID = -1;
     int friesID = -1;
@@ -178,32 +182,35 @@ public class BobsBurgerPOS extends Application {
     float subtotalAmount = 0;
 
     Button completeTransactionButton = new Button("PLACE ORDER");
-    
 
     String returnString = "";
-    
-    FileInputStream input ;
-    
-    
+
+    FileInputStream input;
+
     Image image;
     ImageView imageView;
-      
 
     //constructor
-    public BobsBurgerPOS()   {
+    public BobsBurgerPOS() {
 
         // add handlers upon initialization
-        
-        
-        
-        
         // attach logout handler
-        logoutButton.setStyle("-fx-font: 18 arial;");
+
+        logo.setStyle("-fx-font: 40 arial; -fx-font-weight: bold; -fx-text-fill: #79a3b5; -fx-border: 1pt solid black;");
+      
+      
+        logoutButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
         logoutButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent event) {
 
+                // reset styles to show active tab
+                homeButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
+                openReporting.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
+                openPOS.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
+                logoutButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: white; -fx-text-fill: #79a3b5;");
+                
                 // takes current parent stage as argument
                 // need to find whatever 'current' stage is
                 logout();
@@ -212,7 +219,7 @@ public class BobsBurgerPOS extends Application {
         });
 
         // attach exit handler
-        exitButton.setStyle("-fx-font: 18 arial;");
+        exitButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: red");
         exitButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -225,7 +232,7 @@ public class BobsBurgerPOS extends Application {
         });
 
         // attach login handler
-        loginButton.setStyle("-fx-font: 18 arial;");
+        loginButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: green");
         loginButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -236,22 +243,41 @@ public class BobsBurgerPOS extends Application {
             }
         });
 
-        homeButton.setStyle("-fx-font: 18 arial;");
+        homeButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
         homeButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent event) {
-
-                showMainPOS();
+                
+                // reset styles to show active tab
+                homeButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: white; -fx-text-fill: #79a3b5;");
+                openReporting.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
+                openPOS.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
+                logoutButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
+                
+                try{
+                    
+                    showMainPOS();
+                } catch (Exception e){
+                    
+                    System.out.println(e);
+                }
+                
             }
         });
 
         //attach showManagerReporting handler
-        openReporting.setStyle("-fx-font: 18 arial;");
+        openReporting.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
         openReporting.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent event) {
+                
+                // reset styles to show active tab
+                homeButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
+                openReporting.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: white; -fx-text-fill: #79a3b5;");
+                openPOS.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
+                logoutButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
 
                 showManagerReporting();
 
@@ -259,11 +285,17 @@ public class BobsBurgerPOS extends Application {
         });
 
         //attach showPOS handler 
-        openPOS.setStyle("-fx-font: 18 arial;");
+        openPOS.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
         openPOS.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent event) {
+                
+                // reset styles to show active tab
+                homeButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
+                openReporting.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
+                openPOS.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: white; -fx-text-fill: #79a3b5;");
+                logoutButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
 
                 showPOS();
 
@@ -278,11 +310,10 @@ public class BobsBurgerPOS extends Application {
 
                 // change to actual functionality
                 //if object is selected
-                if(burgerMenu.getSelectionModel().getSelectedItem()!=null){
+                if (burgerMenu.getSelectionModel().getSelectedItem() != null) {
                     transListView.getItems().add(burgerMenu.getSelectionModel().getSelectedItem());
                     showTotal();
                 }
-                
 
             }
         });
@@ -294,12 +325,10 @@ public class BobsBurgerPOS extends Application {
             public void handle(ActionEvent event) {
 
                 //if object is selected
-                if(friesMenu.getSelectionModel().getSelectedItem()!=null){
+                if (friesMenu.getSelectionModel().getSelectedItem() != null) {
                     transListView.getItems().add(friesMenu.getSelectionModel().getSelectedItem());
                     showTotal();
                 }
-                
-                
 
             }
         });
@@ -311,11 +340,11 @@ public class BobsBurgerPOS extends Application {
             public void handle(ActionEvent event) {
 
                 //if object is selected
-                if(drinksMenu.getSelectionModel().getSelectedItem()!=null){
-                    
+                if (drinksMenu.getSelectionModel().getSelectedItem() != null) {
+
                     transListView.getItems().add(drinksMenu.getSelectionModel().getSelectedItem());
                     showTotal();
-                    
+
                 }
 
             }
@@ -350,20 +379,17 @@ public class BobsBurgerPOS extends Application {
             @Override
             public void handle(ActionEvent event) {
 
-                
                 transListView.getItems().remove(transListView.getSelectionModel().getSelectedIndex());
                 showTotal();
             }
         });
 
-        completeTransactionButton.setStyle("-fx-font: 28 arial;");
+        completeTransactionButton.setStyle("-fx-font: 28 arial; -fx-font-weight: bold; -fx-color: green");
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
 
-        
-        
         rootStage = primaryStage;
         // app starts logged out
         // must be stated outside of login function otherwise login screen would always imply logout action
@@ -385,7 +411,7 @@ public class BobsBurgerPOS extends Application {
     public void showLogin() {
 
         // show home button only if logged in
-        logo.setStyle("-fx-font: 35 arial;");
+        
         loginInnerVBox = new VBox(logo, loginLabel, username, password, loginButton, exitButton);
 
         loginInnerVBox.setPrefWidth(50);
@@ -406,21 +432,26 @@ public class BobsBurgerPOS extends Application {
     }
 
     // displays the main POS menu screen
-    public void showMainPOS() {
+    public void showMainPOS() throws Exception {
 
+
+        File file = new File("src\\csc335finalproject\\burger.png");
+
+        Image image1 = new Image(file.toURI().toURL().toExternalForm());
+        ImageView imageView = new ImageView();
+        imageView.setImage(image1);
+        VBox imageVBox = new VBox(imageView);
+        imageVBox.setAlignment(Pos.CENTER);
         
-        //C:\Users\Max Gillman\Documents\NetBeansProjects\CSC335FinalProject\src\csc335finalproject
-        //input = new FileInputStream("C:\\Users\\Max Gillman\\Documents\\NetBeansProjects\\CSC335FinalProject\\src\\csc335finalproject\\burger.png");
-        //Image image = new Image(input);
-        //Image image = new Image("C:\\Users\\Max Gillman\\Documents\\NetBeansProjects\\CSC335FinalProject\\src\\csc335finalproject\\burger.png");
-        //ImageView imageView = new ImageView();
-        //imageView.setImage(image);
-        Label mainPOSlabel = new Label("Main POS Screen");
+        Label mainPOSlabel = new Label("Welcome!");
+        VBox labelVBox = new VBox(mainPOSlabel);
+        labelVBox.setAlignment(Pos.CENTER);
+        mainPOSlabel.setStyle("-fx-font: 24 arial;");
 
-        mainPOSVBox = new VBox(showLoginBanner(), mainPOSlabel); //,imageView);
+        mainPOSVBox = new VBox(showLoginBanner(), labelVBox,imageVBox);
         //mainPOSVBox.setAlignment(Pos.CENTER);
         mainPOSVBox.setSpacing(20);
-
+       
         mainPOSScene = new Scene(mainPOSVBox, 1400, 600);
 
         rootStage.setTitle("Bob's Burger POS");
@@ -456,7 +487,7 @@ public class BobsBurgerPOS extends Application {
         navbar.setSpacing(20);
         navbar.setAlignment(Pos.CENTER);
 
-        logo.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+        
 
         topBanner = new VBox(userInfo, logo, navbar);
         topBanner.setAlignment(Pos.CENTER);
@@ -499,7 +530,7 @@ public class BobsBurgerPOS extends Application {
         POSHBox1.setSpacing(20);
 
         //rootPOSHBox = new HBox(POSVBox, showTransactionComponent());
-        VBox rootPOSVBox = new VBox(showLoginBanner(), POSHBox1, showTransactionComponent());
+        VBox rootPOSVBox = new VBox(showLoginBanner(), POSHBox1, showTransactionComponent(),spaceEatingHBox);
         rootPOSVBox.setAlignment(Pos.CENTER);
         rootPOSVBox.setSpacing(15);
         POSScene = new Scene(rootPOSVBox, 1400, 600);
@@ -516,19 +547,22 @@ public class BobsBurgerPOS extends Application {
         //if admin (manager) allow access to this window
         if (admin) {
 
+            Label dpInstructions = new Label("Please select date:");
             //datepicker
             dp = new DatePicker();
-            
+
             Button orderDetailsButton = new Button("Order Details");
-            
+
             //reporting controls, at top of app
             reportingControls = new HBox(dp);
             reportingControls.setAlignment(Pos.CENTER);
+            VBox controlsVBox = new VBox(dpInstructions,reportingControls);
+            controlsVBox.setAlignment(Pos.CENTER);
 
             //all orders table and vbox
             Label listOrdersLabel = new Label("List Transactions");
             listOrdersLabel.setStyle("-fx-font: 16 arial;");
-            
+
             VBox allOrdersVBox;
             allOrdersTable = new TableView();
 
@@ -548,21 +582,20 @@ public class BobsBurgerPOS extends Application {
             allOrdersTable.getColumns().add(column2);
             allOrdersTable.getColumns().add(column3);
             allOrdersTable.getColumns().add(column4);
-            
-            allOrdersVBox = new VBox(listOrdersLabel,allOrdersTable,orderDetailsButton);
+
+            allOrdersVBox = new VBox(listOrdersLabel, allOrdersTable, orderDetailsButton);
             allOrdersVBox.setAlignment(Pos.CENTER);
-            
+
             // drilldown of individual orders
             Label drilldownLabel = new Label("Order Drilldown");
-            
+
             drilldownLabel.setStyle("-fx-font: 16 arial;");
             VBox drilldownVBox;
             Label orderTotal = new Label("");
             orderTotal.setStyle("-fx-font: 20 arial;");
-            
-            
+
             orderDrilldownTable = new TableView();
-            
+
             TableColumn<Order, Order> c1 = new TableColumn<>("Order #");
             c1.setCellValueFactory(new PropertyValueFactory<>("orderNumber"));
 
@@ -574,10 +607,10 @@ public class BobsBurgerPOS extends Application {
 
             TableColumn<Order, Order> c4 = new TableColumn<>("Item Size");
             c4.setCellValueFactory(new PropertyValueFactory<>("itemSize"));
-            
+
             TableColumn<Order, Order> c5 = new TableColumn<>("Unit Price");
             c5.setCellValueFactory(new PropertyValueFactory<>("itemPrice"));
-            
+
             TableColumn<Order, Order> c6 = new TableColumn<>("Part of Combo?");
             c6.setCellValueFactory(new PropertyValueFactory<>("combo"));
 
@@ -587,11 +620,10 @@ public class BobsBurgerPOS extends Application {
             orderDrilldownTable.getColumns().add(c4);
             orderDrilldownTable.getColumns().add(c5);
             orderDrilldownTable.getColumns().add(c6);
-            
-            drilldownVBox = new VBox(drilldownLabel,orderDrilldownTable,orderTotal);
+
+            drilldownVBox = new VBox(drilldownLabel, orderDrilldownTable, orderTotal);
             drilldownVBox.setAlignment(Pos.CENTER);
-           
-            
+
             //item counts report table
             countsTable = new TableView();
             TableColumn<Count, Count> co1 = new TableColumn<>("Item ID");
@@ -606,37 +638,32 @@ public class BobsBurgerPOS extends Application {
             TableColumn<Count, Count> co4 = new TableColumn<>("Total Sold");
             co4.setCellValueFactory(new PropertyValueFactory<>("count"));
 
-
             countsTable.getColumns().add(co1);
             countsTable.getColumns().add(co2);
             countsTable.getColumns().add(co3);
             countsTable.getColumns().add(co4);
-            
+
             Label countsReportLabel = new Label("Product Quantity Sold");
             Label spaceEaterLabel = new Label(" ");
             countsReportLabel.setStyle("-fx-font: 16 arial;");
-            countsReportVBox = new VBox(countsReportLabel,countsTable);
+            countsReportVBox = new VBox(countsReportLabel, countsTable, spaceEaterLabel);
             countsReportVBox.setAlignment(Pos.CENTER);
-            
 
             //Label l = new Label("Manager Reporting");
-
             // all report containers shown horizontally
-            reportingHBox1 = new HBox(allOrdersVBox, drilldownVBox,countsReportVBox);
-            
+            reportingHBox1 = new HBox(allOrdersVBox, drilldownVBox, countsReportVBox);
+
             reportingHBox1.setAlignment(Pos.CENTER);
             reportingHBox1.setSpacing(20);
 
-            
-            
-            mainReportsVBox = new VBox(showLoginBanner(), reportingControls, reportingHBox1);
+            mainReportsVBox = new VBox(showLoginBanner(), controlsVBox, reportingHBox1,spaceEatingHBox);
             mainReportsVBox.setSpacing(20);
 
             //scene can be temp and stored locally
             reportingScene = new Scene(mainReportsVBox, 1400, 600);
             rootStage.setTitle("MANAGER REPORTING");
             rootStage.setScene(reportingScene);
-            
+
             // run counts report automatically
             runCountsReport();
 
@@ -648,15 +675,15 @@ public class BobsBurgerPOS extends Application {
 
                     // clear current table first
                     allOrdersTable.getItems().clear();
-                    
+
                     String date = dp.getValue().toString();
                     runTransactionReport(date);
-                    
 
                 }
             }));
+
+            orderDetailsButton.setStyle("-fx-font: 16 arial; -fx-font-weight: bold; -fx-color: green");
             
-            // delete when done
             orderDetailsButton.setOnAction((new EventHandler<ActionEvent>() {
 
                 @Override
@@ -664,16 +691,16 @@ public class BobsBurgerPOS extends Application {
 
                     // clear current table first
                     orderDrilldownTable.getItems().clear();
-                    
+
                     String order_number = allOrdersTable.getSelectionModel().getSelectedItem().orderNumber;
+
+                    orderTotal.setText("Order Total: $" + allOrdersTable.getSelectionModel().getSelectedItem().total);
+                    orderTotal.setStyle("-fx-font: 16 arial; -fx-font-weight: bold; -fx-color: green");
                     
-                    orderTotal.setText(allOrdersTable.getSelectionModel().getSelectedItem().total);
-  
                     runOrderDrilldownReport(order_number);
 
                 }
             }));
-       
 
         } else {
 
@@ -682,9 +709,8 @@ public class BobsBurgerPOS extends Application {
         }
 
     }
-    
-    
-    public void runCountsReport(){
+
+    public void runCountsReport() {
         PreparedStatement ps = null;
         ResultSet result = null;
         // connect to DB
@@ -692,23 +718,19 @@ public class BobsBurgerPOS extends Application {
 
         try {
 
-    
             // use prepared statements to execute and avoid outside tampering
             String sqlStatement = "select t.menuid, m.item_desc, m.item_size, count(t.menuid) as total  from transactions t inner join menu m on m.id = t.menuid group by t.menuid, m.item_desc, m.item_size";
 
             ps = conn.prepareStatement(sqlStatement);
-            
 
             result = ps.executeQuery();
-            
 
             //works
             while (result.next()) {
-                
+
                 //create order object
-                Count count = new Count(result.getString("menuid"),result.getString("item_desc"),result.getString("item_size"),result.getString("total"));
-                
-      
+                Count count = new Count(result.getString("menuid"), result.getString("item_desc"), result.getString("item_size"), result.getString("total"));
+
                 countsTable.getItems().add(count);
 
             }
@@ -747,12 +769,10 @@ public class BobsBurgerPOS extends Application {
             }
 
         }
-        
-        
+
     }
-    
-    
-    public void runOrderDrilldownReport(String order_number){
+
+    public void runOrderDrilldownReport(String order_number) {
         PreparedStatement ps = null;
         ResultSet result = null;
         // connect to DB
@@ -760,28 +780,23 @@ public class BobsBurgerPOS extends Application {
 
         try {
 
-    
             // use prepared statements to execute and avoid outside tampering
             String sqlStatement = "select t.transactionid, t.menuid,mxc.item_desc, mxc.item_size, mxc.item_price, t.combo from TRANSACTIONS t left join (select * from menu union select c.comboid as id, c.combo_group as item_type, c.combo_group || ': ' || c.entree_desc || ' / ' || c.fries_desc|| ' / ' || c.drink_desc as item_desc, entree_size as item_size, c.combo_price as item_price from combos c) as mxc on t.menuid = mxc.id where transactionid = ?";
 
-            
-            
             ps = conn.prepareStatement(sqlStatement);
             ps.setString(1, order_number);
 
-
             result = ps.executeQuery();
-            
 
             //works
             while (result.next()) {
-                
+
                 //create order object
-                Order order = new Order(result.getString("transactionid"),result.getString("menuid"),result.getString("item_desc"),result.getString("item_size"),result.getString("item_price"),result.getString("combo"));
-                
+                Order order = new Order(result.getString("transactionid"), result.getString("menuid"), result.getString("item_desc"), result.getString("item_size"), result.getString("item_price"), result.getString("combo"));
+
                 //if part of combo, unit price should be 0
-                if(result.getString("combo").equalsIgnoreCase("YES")){
-                    
+                if (result.getString("combo").equalsIgnoreCase("YES")) {
+
                     order.setItemPrice("0.00");
                 }
 
@@ -823,9 +838,8 @@ public class BobsBurgerPOS extends Application {
             }
 
         }
-        
+
     }
-    
 
     //takes a string argument and uses it to pull transactions by date
     // TODO - MOST CODE IN HERE NOT VALID, DELETE
@@ -846,13 +860,12 @@ public class BobsBurgerPOS extends Application {
             ps = conn.prepareStatement(sqlStatement);
             ps.setString(1, date);
 
-
             result = ps.executeQuery();
 
             //works
             while (result.next()) {
 
-                allOrdersTable.getItems().add(new Transaction(result.getString("order_number"),result.getString("date"),result.getString("taker"),result.getString("order_total")));
+                allOrdersTable.getItems().add(new Transaction(result.getString("order_number"), result.getString("date"), result.getString("taker"), result.getString("order_total")));
 
             }
 
@@ -1006,23 +1019,6 @@ public class BobsBurgerPOS extends Application {
 
     }
 
-    public void connect() {
-
-        try {
-
-            Class.forName("org.apache.derby.jdbc.ClientDriver");
-            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bobsburger", "max", "password");//, "max", "password"); dont need this created without username password
-            //conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bb");
-            //JOptionPane.showMessageDialog(null, "connection success!", "Connection", JOptionPane.OK_OPTION);
-
-        } catch (Exception e) {
-
-            JOptionPane.showMessageDialog(null, "ERROR: " + e, "Connection Failed:", JOptionPane.OK_OPTION);
-
-        }
-
-    }
-
     public ListView showBurgerMenu() {
 
         try {
@@ -1149,8 +1145,8 @@ public class BobsBurgerPOS extends Application {
 
         transListView.setPrefHeight(250);
         subTotal.setStyle("-fx-font: 20 arial;");
-        
-        transDetails = new VBox(transListView,removeItemButton, subTotal, completeTransactionButton );
+
+        transDetails = new VBox(transListView, removeItemButton, subTotal, completeTransactionButton);
         transDetails.setAlignment(Pos.CENTER);
         transDetails.setSpacing(15);
         return transDetails;
@@ -1281,19 +1277,22 @@ public class BobsBurgerPOS extends Application {
 
         // add "Combo" to beginning of string for query
         String newCombo = "Combo" + combo;
+        Label instructions = new Label("Please select Fries and Drink:");
 
         try {
             //comboSelectionLabel.setText(result.getString("entree_desc"));
 // populate fries combobox      
             // use prepared statements to execute and avoid outside tampering
-            String sqlStatement = "select distinct fries_id, fries_desc, fries_size from combos where combo_group = ?";
+            String sqlStatement = "select distinct entree_desc, entree_size, fries_id, fries_desc, fries_size from combos where combo_group = ?";
 
             ps = conn.prepareStatement(sqlStatement);
             ps.setString(1, newCombo);
             result = ps.executeQuery();
+            comboSelectionLabel.setStyle("-fx-font: 30 arial; -fx-font-weight: bold; -fx-text-fill: #79a3b5; -fx-border: 1pt solid black;");
 
             while (result.next()) {
 
+                comboSelectionLabel.setText(result.getString("entree_desc") + ": " + result.getString("entree_size"));
                 friesArray.add(result.getString("fries_id") + " - " + result.getString("fries_desc") + " " + result.getString("fries_size"));
 
             }
@@ -1312,13 +1311,15 @@ public class BobsBurgerPOS extends Application {
 
             }
 
+            addComboButton.setStyle("-fx-font: 20 arial; -fx-font-weight: bold; -fx-color: green");
+            
             // set add combo button handler here since its actions are dynamic
             addComboButton.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
                 public void handle(ActionEvent event) {
 
-                // TODO
+                    // TODO
                     //friesID = Integer.parseInt(result.getString("fries_id"));
                     friesID = Integer.parseInt(comboFriesComboBox.getSelectionModel().getSelectedItem().toString().substring(0, 4).replaceAll("[^0-9]", ""));
                     drinkID = Integer.parseInt(comboDrinksComboBox.getSelectionModel().getSelectedItem().toString().substring(0, 4).replaceAll("[^0-9]", ""));
@@ -1338,9 +1339,11 @@ public class BobsBurgerPOS extends Application {
         comboFriesComboBox.setItems(friesArray);
         comboDrinksComboBox.setItems(drinksArray);
 
-        combosVBox = new VBox(comboSelectionLabel, comboFriesComboBox, comboDrinksComboBox, addComboButton);
-
-        comboSelectionScene = new Scene(combosVBox, 600, 600);
+        combosVBox = new VBox(comboSelectionLabel,instructions, comboFriesComboBox, comboDrinksComboBox, addComboButton,spaceEatingHBox);
+        combosVBox.setAlignment(Pos.CENTER);
+        combosVBox.setSpacing(15);
+        
+        comboSelectionScene = new Scene(combosVBox, 400, 200);
 
         comboSelectionWindow.setScene(comboSelectionScene);
         comboSelectionWindow.show();
@@ -1372,7 +1375,7 @@ public class BobsBurgerPOS extends Application {
                 // add item to transactions listview
                 transListView.getItems().add(String.format("%-20s%-20s%-20s%-20s\n", result.getString("comboid"), result.getString("combo_group") + " - " + result.getString("entree_desc"), result.getString("entree_size"), result.getString("combo_price")));
 
-               // add individual items that make up combo at zero cost
+                // add individual items that make up combo at zero cost
                 //id desc size price
                 transListView.getItems().add(String.format("%-20s%-20s%-20s%-20s\n", result.getString("entree_id"), result.getString("entree_desc"), result.getString("entree_size"), "0.00"));
                 transListView.getItems().add(String.format("%-20s%-20s%-20s%-20s\n", result.getString("fries_id"), result.getString("fries_desc"), result.getString("fries_size"), "0.00"));
@@ -1390,9 +1393,27 @@ public class BobsBurgerPOS extends Application {
 
     }
 
-    public static void main(String[] args) {
+    public void connect() {
 
-        launch(args);
+        try {
+
+            Class.forName("org.apache.derby.jdbc.ClientDriver");
+            //conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bobsburger", "max", "password");//, "max", "password"); dont need this created without username password
+            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bb1");
+            //JOptionPane.showMessageDialog(null, "connection success!", "Connection", JOptionPane.OK_OPTION);
+
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(null, "ERROR: " + e, "Connection Failed:", JOptionPane.OK_OPTION);
+
+        }
+
+    }
+
+    public static void main(String[] args) {
+       
+            launch(args);
+       
     }
 
 }
