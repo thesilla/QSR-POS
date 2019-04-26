@@ -209,6 +209,9 @@ public class BobsBurgerPOS extends Application {
 
     Image image;
     ImageView imageView;
+    
+    Image logo1;
+    ImageView imageViewLogo;
 
     //constructor
     public BobsBurgerPOS() {
@@ -427,6 +430,13 @@ public class BobsBurgerPOS extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
+        File file1 = new File("src\\csc335finalproject\\logo.jpg");
+
+        logo1 = new Image(file1.toURI().toURL().toExternalForm());
+        imageViewLogo = new ImageView();
+        imageViewLogo.setImage(logo1);
+        
+        
         rootStage = primaryStage;
         // app starts logged out
         // must be stated outside of login function otherwise login screen would always imply logout action
@@ -461,7 +471,7 @@ public class BobsBurgerPOS extends Application {
         passwordLabel.setStyle(" -fx-font-weight: bold; -fx-text-fill: #79a3b5;");
         loginLabel.setStyle("-fx-font: 20 arial; -fx-font-weight: bold; -fx-text-fill: #79a3b5;");
         
-        loginInnerVBox = new VBox(logo, usernameLabel, usernameHBox, passwordLabel,passwordHBox, loginButton, exitButton);
+        loginInnerVBox = new VBox(imageViewLogo, usernameLabel, usernameHBox, passwordLabel,passwordHBox, loginButton, exitButton);
 
         loginInnerVBox.setPrefWidth(50);
         loginInnerVBox.setAlignment(Pos.CENTER);
@@ -473,7 +483,7 @@ public class BobsBurgerPOS extends Application {
         loginVBox.setSpacing(10);
         loginVBox.setStyle("-fx-background-color: #3a4e56;");
 
-        loginScene = new Scene(loginVBox, 600, 350);
+        loginScene = new Scene(loginVBox, 800, 350);
 
         rootStage.setTitle("Bob's Burger POS - Login");
         rootStage.setScene(loginScene);
@@ -488,7 +498,7 @@ public class BobsBurgerPOS extends Application {
         File file = new File("src\\csc335finalproject\\burger.png");
 
         Image image1 = new Image(file.toURI().toURL().toExternalForm());
-        ImageView imageView = new ImageView();
+        imageView = new ImageView();
         imageView.setImage(image1);
         VBox imageVBox = new VBox(imageView,exitButton);
         imageVBox.setAlignment(Pos.CENTER);
@@ -550,7 +560,7 @@ public class BobsBurgerPOS extends Application {
 
         separator1 = new Separator();
 
-        topBanner = new VBox(userInfo, logo, navbar,spaceEatingHBox,separator1);
+        topBanner = new VBox(userInfo, imageViewLogo, navbar,spaceEatingHBox,separator1);
         topBanner.setAlignment(Pos.CENTER);
         topBanner.setStyle("-fx-background-color: #3a4e56;");
 
@@ -610,6 +620,7 @@ public class BobsBurgerPOS extends Application {
         if (admin) {
 
             Label dpInstructions = new Label("Please select date:");
+            dpInstructions.setStyle("-fx-font-weight: bold;");
             
             //datepicker
             dp = new DatePicker();
@@ -869,7 +880,7 @@ public class BobsBurgerPOS extends Application {
 
         } catch (Exception e) {
 
-            JOptionPane.showMessageDialog(null, "Error: " + e, "Connection Failed", JOptionPane.OK_OPTION);
+            JOptionPane.showMessageDialog(null, "Error: " + e, "Order Detail Error", JOptionPane.OK_OPTION);
 
             // after execution, close out of everything
         } finally {
@@ -1243,7 +1254,7 @@ public class BobsBurgerPOS extends Application {
         Random rand = new Random();
 
         //temp transaction ID (FIXME MAKE RANDOM), and check db to see trans ID not taken
-        int transactionID = rand.nextInt(50);
+        int transactionID = rand.nextInt(1000000000);
 
         //temp customer ID (FIXME MAKE RECORDS)
         int customerID = 1;
@@ -1324,7 +1335,8 @@ public class BobsBurgerPOS extends Application {
 
             }
         });
-        JOptionPane.showMessageDialog(null, "Your Order Number is: " + transactionID + "\nOrder Total: " + subtotalAmount, "Transaction Complete!", JOptionPane.PLAIN_MESSAGE);
+        String st = "$"+ String.format("%.02f", subtotalAmount);
+        JOptionPane.showMessageDialog(null, "Your Order Number is: " + transactionID + "\nOrder Total: " + st, "Transaction Complete!", JOptionPane.PLAIN_MESSAGE);
         showPOS();
 
     }
@@ -1476,8 +1488,8 @@ public class BobsBurgerPOS extends Application {
         try {
 
             Class.forName("org.apache.derby.jdbc.ClientDriver");
-            //conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bobsburger", "max", "password");//, "max", "password"); dont need this created without username password
-            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bb1");
+            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bobsburger", "max", "password");//, "max", "password"); dont need this created without username password
+            //conn = DriverManager.getConnection("jdbc:derby://localhost:1527/bb1");
             //JOptionPane.showMessageDialog(null, "connection success!", "Connection", JOptionPane.OK_OPTION);
 
         } catch (Exception e) {
