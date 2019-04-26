@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Random;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
+import static javafx.collections.FXCollections.fill;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -32,14 +33,18 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -86,10 +91,11 @@ public class BobsBurgerPOS extends Application {
 
     Button openPOS = new Button("POS"); //global openPOS button for reuse, add handler in constructor
 
-    Button openReporting = new Button("Managment Reporting"); //global openReporting button for reuse, add handler in constructor
+    Button openReporting = new Button("MANAGEMENT REPORTING"); //global openReporting button for reuse, add handler in constructor
 
     // navbar
     HBox navbar = new HBox();
+    
 
     // ----Login window----
     //Stage loginStage;
@@ -98,8 +104,16 @@ public class BobsBurgerPOS extends Application {
     Scene loginScene;
 
     Label loginLabel;
+    
+    Label usernameLabel = new Label("Username:");
     TextField username;
+    HBox usernameHBox;
+    
+    Label passwordLabel = new Label("Password:");
     PasswordField password;
+    HBox passwordHBox;
+    
+    
     boolean loggedIn = false;
     String loggedInUsername = "";
     String loggedInTitle = "";
@@ -109,6 +123,11 @@ public class BobsBurgerPOS extends Application {
     Label mainPOSUsername = new Label("");
     Label mainPOSTitle = new Label("");
     Label mainPOSAdmin = new Label("");
+    
+    Label adminPartialLabel = new Label("Admin: ");
+    HBox adminHBox;
+   
+    Separator separator1;
     HBox userInfo = new HBox();
     VBox topBanner = new VBox();
 
@@ -171,6 +190,7 @@ public class BobsBurgerPOS extends Application {
 
     // for removing item from cart
     Button removeItemButton = new Button("Remove Selected Item");
+    
 
     int drinkID = -1;
     int friesID = -1;
@@ -198,7 +218,12 @@ public class BobsBurgerPOS extends Application {
 
         logo.setStyle("-fx-font: 40 arial; -fx-font-weight: bold; -fx-text-fill: #79a3b5; -fx-border: 1pt solid black;");
       
-      
+        addBurgerButton.setStyle("-fx-font: 12 arial; -fx-font-weight: bold; -fx-color: green");
+        addDrinksButton.setStyle("-fx-font: 12 arial; -fx-font-weight: bold; -fx-color: green");
+        addFriesButton.setStyle("-fx-font: 12 arial; -fx-font-weight: bold; -fx-color: green");
+        addComboButton.setStyle("-fx-font: 12 arial; -fx-font-weight: bold; -fx-color: green");
+        
+        
         logoutButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
         logoutButton.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -220,6 +245,7 @@ public class BobsBurgerPOS extends Application {
 
         // attach exit handler
         exitButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: red");
+        exitButton.setPrefWidth(300);
         exitButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -232,13 +258,21 @@ public class BobsBurgerPOS extends Application {
         });
 
         // attach login handler
-        loginButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: green");
+        loginButton.setStyle("-fx-font: 18 arial; -fx-font-weight: bold; -fx-color: #79a3b5; -fx-text-fill: white;");
+        loginButton.setPrefWidth(300);
         loginButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent event) {
 
-                login(username.getText(), password.getText());
+                if(!(username.getText().equalsIgnoreCase("")) || !(password.getText().equalsIgnoreCase(""))){
+                    
+                    login(username.getText(), password.getText());
+                } else {
+                    
+                    JOptionPane.showMessageDialog(null, "Please enter username and password to proceed", "ERROR", JOptionPane.OK_OPTION);
+                }
+                
 
             }
         });
@@ -373,7 +407,9 @@ public class BobsBurgerPOS extends Application {
             }
         });
 
-        //attach removeItem handler 
+        //attach removeItem handler
+        removeItemButton.setStyle("-fx-font: 16 arial; -fx-font-weight: bold; -fx-color: red");
+        removeItemButton.setPrefWidth(300);
         removeItemButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -385,6 +421,7 @@ public class BobsBurgerPOS extends Application {
         });
 
         completeTransactionButton.setStyle("-fx-font: 28 arial; -fx-font-weight: bold; -fx-color: green");
+        completeTransactionButton.setPrefWidth(300);
     }
 
     @Override
@@ -393,16 +430,24 @@ public class BobsBurgerPOS extends Application {
         rootStage = primaryStage;
         // app starts logged out
         // must be stated outside of login function otherwise login screen would always imply logout action
-        loginLabel = new Label("LOGIN");
-
+        loginLabel = new Label("LOGIN:");
+        loginLabel.setStyle("-fx-font: 22 helvetica; -fx-font-weight: bold;");
+        
         username = new TextField("");
-        username.setPrefWidth(10);
+        username.setPrefWidth(300);
         username.setAlignment(Pos.CENTER);
+        usernameHBox = new HBox(username);
+        usernameHBox.setPrefWidth(300);
+        usernameHBox.setAlignment(Pos.CENTER);
 
         password = new PasswordField();
-        password.setPrefWidth(10);
+        password.setPrefWidth(300);
         password.setAlignment(Pos.CENTER);
+        passwordHBox = new HBox(password);
+        passwordHBox.setPrefWidth(300);
+        passwordHBox.setAlignment(Pos.CENTER);
 
+        
         // show login screen when app starts
         showLogin();
 
@@ -412,7 +457,11 @@ public class BobsBurgerPOS extends Application {
 
         // show home button only if logged in
         
-        loginInnerVBox = new VBox(logo, loginLabel, username, password, loginButton, exitButton);
+        usernameLabel.setStyle(" -fx-font-weight: bold; -fx-text-fill: #79a3b5;");
+        passwordLabel.setStyle(" -fx-font-weight: bold; -fx-text-fill: #79a3b5;");
+        loginLabel.setStyle("-fx-font: 20 arial; -fx-font-weight: bold; -fx-text-fill: #79a3b5;");
+        
+        loginInnerVBox = new VBox(logo, usernameLabel, usernameHBox, passwordLabel,passwordHBox, loginButton, exitButton);
 
         loginInnerVBox.setPrefWidth(50);
         loginInnerVBox.setAlignment(Pos.CENTER);
@@ -422,8 +471,9 @@ public class BobsBurgerPOS extends Application {
         loginVBox.setPrefWidth(50);
         loginVBox.setAlignment(Pos.CENTER);
         loginVBox.setSpacing(10);
+        loginVBox.setStyle("-fx-background-color: #3a4e56;");
 
-        loginScene = new Scene(loginVBox, 600, 250);
+        loginScene = new Scene(loginVBox, 600, 350);
 
         rootStage.setTitle("Bob's Burger POS - Login");
         rootStage.setScene(loginScene);
@@ -440,8 +490,9 @@ public class BobsBurgerPOS extends Application {
         Image image1 = new Image(file.toURI().toURL().toExternalForm());
         ImageView imageView = new ImageView();
         imageView.setImage(image1);
-        VBox imageVBox = new VBox(imageView);
+        VBox imageVBox = new VBox(imageView,exitButton);
         imageVBox.setAlignment(Pos.CENTER);
+        imageVBox.setSpacing(15);
         
         Label mainPOSlabel = new Label("Welcome!");
         VBox labelVBox = new VBox(mainPOSlabel);
@@ -452,7 +503,7 @@ public class BobsBurgerPOS extends Application {
         //mainPOSVBox.setAlignment(Pos.CENTER);
         mainPOSVBox.setSpacing(20);
        
-        mainPOSScene = new Scene(mainPOSVBox, 1400, 600);
+        mainPOSScene = new Scene(mainPOSVBox, 1500, 600);
 
         rootStage.setTitle("Bob's Burger POS");
         rootStage.setScene(mainPOSScene);
@@ -464,22 +515,32 @@ public class BobsBurgerPOS extends Application {
 
         //if (loggedIn) {
         dateLabel.setText("Date: " + date);
-        dateLabel.setStyle("-fx-font: 12 arial;");
+        dateLabel.setStyle("-fx-font: 12 arial; -fx-font-weight: bold; -fx-text-fill: #79a3b5;");
+        
+       // -fx-color: #79a3b5; 
         mainPOSUsername = new Label("Welcome, " + loggedInUsername);
-        mainPOSUsername.setStyle("-fx-font: 12 arial;");
+        mainPOSUsername.setStyle("-fx-font: 12 arial; -fx-font-weight: bold; -fx-text-fill: #79a3b5;");
         mainPOSTitle = new Label("Role: " + loggedInTitle);
-        mainPOSTitle.setStyle("-fx-font: 12 arial;");
+        mainPOSTitle.setStyle("-fx-font: 12 arial; -fx-font-weight: bold; -fx-text-fill: #79a3b5;");
+        adminPartialLabel.setStyle("-fx-font: 12 arial; -fx-font-weight: bold; -fx-text-fill: #79a3b5;");
+        
         if (admin) {
 
-            mainPOSAdmin = new Label("Admin Access: YES");
+            mainPOSAdmin = new Label("YES");
+            mainPOSAdmin.setStyle("-fx-font: 12 arial; -fx-font-weight: bold; -fx-text-fill: #14cc0e;");
+            
 
         } else {
 
-            mainPOSAdmin = new Label("Admin Access: NO");
+            mainPOSAdmin = new Label("NO");
+            mainPOSAdmin.setStyle("-fx-font: 12 arial; -fx-font-weight: bold; -fx-text-fill: red;");
+            
 
         }
-        mainPOSAdmin.setStyle("-fx-font: 12 arial;");
-        userInfo = new HBox(mainPOSUsername, mainPOSTitle, mainPOSAdmin, dateLabel);
+        
+        adminHBox = new HBox(adminPartialLabel,mainPOSAdmin);
+        
+        userInfo = new HBox(mainPOSUsername, mainPOSTitle, adminHBox, dateLabel);
         userInfo.setSpacing(20);
         userInfo.setAlignment(Pos.CENTER);
 
@@ -487,10 +548,11 @@ public class BobsBurgerPOS extends Application {
         navbar.setSpacing(20);
         navbar.setAlignment(Pos.CENTER);
 
-        
+        separator1 = new Separator();
 
-        topBanner = new VBox(userInfo, logo, navbar);
+        topBanner = new VBox(userInfo, logo, navbar,spaceEatingHBox,separator1);
         topBanner.setAlignment(Pos.CENTER);
+        topBanner.setStyle("-fx-background-color: #3a4e56;");
 
         return topBanner;
 
@@ -505,22 +567,22 @@ public class BobsBurgerPOS extends Application {
         subTotal.setText("$0.00");
 
         Label burgersl = new Label("Burgers");
-        burgersl.setStyle("-fx-font: 16 arial;");
+        burgersl.setStyle("-fx-font: 16 arial; -fx-font-weight: bold;");
         VBox hb_burgers = new VBox(burgersl, showBurgerMenu(), addBurgerButton);
         hb_burgers.setAlignment(Pos.CENTER);
 
         Label friesl = new Label("Fries");
-        friesl.setStyle("-fx-font: 16 arial;");
+        friesl.setStyle("-fx-font: 16 arial; -fx-font-weight: bold;");
         VBox hb_fries = new VBox(friesl, showFriesMenu(), addFriesButton);
         hb_fries.setAlignment(Pos.CENTER);
 
         Label drinksl = new Label("Drinks");
-        drinksl.setStyle("-fx-font: 16 arial;");
+        drinksl.setStyle("-fx-font: 16 arial; -fx-font-weight: bold;");
         VBox hb_drinks = new VBox(drinksl, showDrinksMenu(), addDrinksButton);
         hb_drinks.setAlignment(Pos.CENTER);
 
         Label combosl = new Label("Combos");
-        combosl.setStyle("-fx-font: 16 arial;");
+        combosl.setStyle("-fx-font: 16 arial; -fx-font-weight: bold;");
         VBox hb_combos = new VBox(combosl, showComboMenu(), addOptionsButton);
         hb_combos.setAlignment(Pos.CENTER);
 
@@ -533,7 +595,7 @@ public class BobsBurgerPOS extends Application {
         VBox rootPOSVBox = new VBox(showLoginBanner(), POSHBox1, showTransactionComponent(),spaceEatingHBox);
         rootPOSVBox.setAlignment(Pos.CENTER);
         rootPOSVBox.setSpacing(15);
-        POSScene = new Scene(rootPOSVBox, 1400, 600);
+        POSScene = new Scene(rootPOSVBox, 1500, 600);
 
         //POSStage = new Stage();
         rootStage.setTitle("ORDER ENTRY");
@@ -548,6 +610,7 @@ public class BobsBurgerPOS extends Application {
         if (admin) {
 
             Label dpInstructions = new Label("Please select date:");
+            
             //datepicker
             dp = new DatePicker();
 
@@ -561,7 +624,7 @@ public class BobsBurgerPOS extends Application {
 
             //all orders table and vbox
             Label listOrdersLabel = new Label("List Transactions");
-            listOrdersLabel.setStyle("-fx-font: 16 arial;");
+            listOrdersLabel.setStyle("-fx-font: 16 arial; -fx-font-weight: bold;");
 
             VBox allOrdersVBox;
             allOrdersTable = new TableView();
@@ -589,7 +652,7 @@ public class BobsBurgerPOS extends Application {
             // drilldown of individual orders
             Label drilldownLabel = new Label("Order Drilldown");
 
-            drilldownLabel.setStyle("-fx-font: 16 arial;");
+            drilldownLabel.setStyle("-fx-font: 16 arial; -fx-font-weight: bold;");
             VBox drilldownVBox;
             Label orderTotal = new Label("");
             orderTotal.setStyle("-fx-font: 20 arial;");
@@ -645,7 +708,7 @@ public class BobsBurgerPOS extends Application {
 
             Label countsReportLabel = new Label("Product Quantity Sold");
             Label spaceEaterLabel = new Label(" ");
-            countsReportLabel.setStyle("-fx-font: 16 arial;");
+            countsReportLabel.setStyle("-fx-font: 16 arial; -fx-font-weight: bold;");
             countsReportVBox = new VBox(countsReportLabel, countsTable, spaceEaterLabel);
             countsReportVBox.setAlignment(Pos.CENTER);
 
@@ -656,11 +719,11 @@ public class BobsBurgerPOS extends Application {
             reportingHBox1.setAlignment(Pos.CENTER);
             reportingHBox1.setSpacing(20);
 
-            mainReportsVBox = new VBox(showLoginBanner(), controlsVBox, reportingHBox1,spaceEatingHBox);
+            mainReportsVBox = new VBox(showLoginBanner(), controlsVBox, reportingHBox1);
             mainReportsVBox.setSpacing(20);
 
             //scene can be temp and stored locally
-            reportingScene = new Scene(mainReportsVBox, 1400, 600);
+            reportingScene = new Scene(mainReportsVBox, 1500, 600);
             rootStage.setTitle("MANAGER REPORTING");
             rootStage.setScene(reportingScene);
 
@@ -925,12 +988,13 @@ public class BobsBurgerPOS extends Application {
             ps.setString(2, password);
 
             result = ps.executeQuery();
-
+            //result.next();
             //works
-            while (result.next()) {
-
+            //while (result.next()) {
+            if (result.next()) {  
                 if (Integer.parseInt(result.getString("numrecords")) == 1) {
 
+                    //System.out.println(Integer.parseInt(result.getString("numrecords")));
                     loggedIn = true;
                     loggedInUsername = username;
                     loggedInTitle = result.getString("title");
@@ -951,11 +1015,15 @@ public class BobsBurgerPOS extends Application {
                     showMainPOS();
 
                 } else {
-
+                    //FIXME - THIS ISNT REACHED
                     JOptionPane.showMessageDialog(null, "Error: Username and Password combination incorrect. Please try again", "ACCESS DENIED", JOptionPane.OK_OPTION);
+                    
 
                 }
 
+            } else {
+
+                JOptionPane.showMessageDialog(null, "Error: Username and Password combination incorrect. Please try again", "ACCESS DENIED", JOptionPane.OK_OPTION);
             }
 
         } catch (Exception e) {
@@ -1144,7 +1212,8 @@ public class BobsBurgerPOS extends Application {
         transListView = new ListView();
 
         transListView.setPrefHeight(250);
-        subTotal.setStyle("-fx-font: 20 arial;");
+        subTotal.setStyle("-fx-font: 30 arial; -fx-text-fill: green; -fx-font-weight: bold;");
+       
 
         transDetails = new VBox(transListView, removeItemButton, subTotal, completeTransactionButton);
         transDetails.setAlignment(Pos.CENTER);
@@ -1162,7 +1231,7 @@ public class BobsBurgerPOS extends Application {
             double item_price = Double.parseDouble(item.toString().substring(50).replaceAll("[^0-9.]", ""));
             subtotalAmount += item_price;
             returnString = String.format("%.02f", subtotalAmount);
-            subTotal.setText(String.format("%.02f", subtotalAmount));
+            subTotal.setText("$"+ String.format("%.02f", subtotalAmount));
 
         });
         return returnString;
@@ -1255,7 +1324,7 @@ public class BobsBurgerPOS extends Application {
 
             }
         });
-        JOptionPane.showMessageDialog(null, "Your Order Number is: " + transactionID + ";\nOrder Total: " + subtotalAmount, "Transaction Complete!", JOptionPane.OK_OPTION);
+        JOptionPane.showMessageDialog(null, "Your Order Number is: " + transactionID + "\nOrder Total: " + subtotalAmount, "Transaction Complete!", JOptionPane.PLAIN_MESSAGE);
         showPOS();
 
     }
@@ -1278,6 +1347,7 @@ public class BobsBurgerPOS extends Application {
         // add "Combo" to beginning of string for query
         String newCombo = "Combo" + combo;
         Label instructions = new Label("Please select Fries and Drink:");
+        instructions.setStyle("-fx-font: 12 arial; -fx-font-weight: bold;");
 
         try {
             //comboSelectionLabel.setText(result.getString("entree_desc"));
@@ -1321,11 +1391,19 @@ public class BobsBurgerPOS extends Application {
 
                     // TODO
                     //friesID = Integer.parseInt(result.getString("fries_id"));
-                    friesID = Integer.parseInt(comboFriesComboBox.getSelectionModel().getSelectedItem().toString().substring(0, 4).replaceAll("[^0-9]", ""));
-                    drinkID = Integer.parseInt(comboDrinksComboBox.getSelectionModel().getSelectedItem().toString().substring(0, 4).replaceAll("[^0-9]", ""));
+                    if(!(comboFriesComboBox.getSelectionModel().isEmpty() || comboDrinksComboBox.getSelectionModel().isEmpty()) ){
+                        friesID = Integer.parseInt(comboFriesComboBox.getSelectionModel().getSelectedItem().toString().substring(0, 4).replaceAll("[^0-9]", ""));
+                        drinkID = Integer.parseInt(comboDrinksComboBox.getSelectionModel().getSelectedItem().toString().substring(0, 4).replaceAll("[^0-9]", ""));
 
-                    //drinkID = Integer.parseInt(result.getString("drink_id"));
-                    addComboToTransaction(newCombo, friesID, drinkID);
+                        //drinkID = Integer.parseInt(result.getString("drink_id"));
+                        addComboToTransaction(newCombo, friesID, drinkID);
+                        
+                    } else {
+                        
+                        JOptionPane.showMessageDialog(null, "Please select both a fries and drink option.", "Connection Failed", JOptionPane.OK_OPTION);
+                        
+                    }
+                    
 
                 }
             });
@@ -1344,7 +1422,7 @@ public class BobsBurgerPOS extends Application {
         combosVBox.setSpacing(15);
         
         comboSelectionScene = new Scene(combosVBox, 400, 200);
-
+        comboSelectionWindow.setTitle("Choose Combo Options");
         comboSelectionWindow.setScene(comboSelectionScene);
         comboSelectionWindow.show();
 
